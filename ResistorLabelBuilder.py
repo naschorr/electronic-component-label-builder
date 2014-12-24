@@ -19,8 +19,17 @@ MIDDLE_DIV = 0.551
 LABEL_W = 3.438
 LABEL_H = 0.666
 
+## Text padding inside the labels
+PADDING = .1
+
 ## Number of labels to split each label into
 SUBLABELS = 2
+
+## Number of rows in each label column
+ROWS = 15
+
+## Modifier for all scale values (should produce a higher resolution image)
+SCALE_MOD = 100
 
 ## Resistor values to generate labels for
 RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
@@ -47,13 +56,18 @@ MULTIPLIER = {"black":1, "brown":10, "red":100, "orange":1000,
 TOLERANCE = 1
 
 ## Builds 5 band color code
-def gen_resistor_bands( ohms ):
+def create_resistor_bands( ohms ):
     ohmList = [str(i) for i in str(ohms)]
 
     firstBand = DIGIT[int(ohmList[0])]
     multiBand = 0
 
-    if ohmList[1] == ".":
+    if len(ohmList) == 1:
+        secondBand = "black"
+        thirdBand = "black"
+        multiBand = 0.01
+
+    elif ohmList[1] == ".":
         multiBand = 0.1
         secondBand = DIGIT[int(ohmList[2])]
         if( len(ohmList) <= 3 ):
@@ -85,13 +99,62 @@ def gen_resistor_bands( ohms ):
     tolBand = "brown"
 
     return firstBand, secondBand, thirdBand, multiBand, tolBand
-            
-a,b,c,d,e = gen_resistor_bands(RESISTORS[13])
 
-print a
-print b
-print c
-print d
-print e
+def get_offset(column, row, sublabel, width, height):
+    if( column == 1 ):
+        leftOffset = LEFT_MARGIN*SCALE_MOD + (LABEL_W*SCALE_MOD) / 2
+    elif( column == 2 ):
+        leftOffset = LEFT_MARGIN*SCALE_MOD + LABEL_W*SCALE_MOD + MIDDLE_DIV*SCALE_MOD + (LABEL_W*SCALE_MOD) / 2
+    else:
+        leftOffset = 0
+
+    if( sublabel == 1 ):
+        leftOffset -= (LABEL_W*SCALE_MOD)/4
+    elif( sublabel == 2 ):
+        leftOffset += (LABEL_W*SCALE_MOD)/4
+
+    upperOffset = UPPER_MARGIN*SCALE_MOD + LABEL_H*SCALE_MOD * (row - 1) + PADDING*SCALE_MOD
+
+    return leftOffset, upperOffset
+        
+
+def create_image():
+    size = (int(SHEET_W*SCALE_MOD), int(SHEET_H*SCALE_MOD))
+    img = Image.new('RGB', size, "white")
+    draw = ImageDraw.Draw(img)
+
+    fontPath = "Arial.ttf"
+    fontSize = 20
+    ttf = ImageFont.truetype(fontPath, fontSize)
+
+    currColumn = 1
+    currSublabel = 1
+    currRow = 1
+    
+    for i in RESISTORS:
+        print currSublabel,
+        print currRow,
+        print currColumn
+        
+        ohms = str(i) + " Ohms"
+        firstBand, secondBand, thirdBand, multiBand, tolBand = create_resistor_bands(i)
+        font_w, font_h = ttf.getsize(ohms)
+        font_x, font_y = get_offset(currColumn, currRow, currSublabel, font_w, font_h)
+
+        draw.text((font_x*SCALE_MOD, font_y*SCALE_MOD), ohms, font=ttf, fill="black")
+
+        currSublabel += 1
+
+        if( currSublabel > SUBLABELS ):
+            currSublabel = 1
+            currRow += 1
+
+        if( currRow > ROWS ):
+            currRow = 1
+            currColumn += 1
+
+    img.show()
+
+create_image()
     
     
