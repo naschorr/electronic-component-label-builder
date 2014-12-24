@@ -19,8 +19,11 @@ MIDDLE_DIV = 0.551
 LABEL_W = 3.438
 LABEL_H = 0.666
 
+## Font size
+FONT = 18
+
 ## Text padding inside the labels
-PADDING = .1
+PADDING = .2
 
 ## Number of labels to split each label into
 SUBLABELS = 2
@@ -28,20 +31,13 @@ SUBLABELS = 2
 ## Number of rows in each label column
 ROWS = 15
 
+## Number of columns in each sheet
+COLUMNS = 2
+
 ## Modifier for all scale values (should produce a higher resolution image)
 SCALE_MOD = 100
 
 ## Resistor values to generate labels for
-##RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
-##             33, 39, 47, 56, 68, 75, 82, 100, 120, 150,
-##             180, 220, 270, 330, 390, 470, 510, 680, 820,
-##             1000, 1500, 2200, 3300, 3900, 4700, 5600,
-##             6800, 7500, 8200, 10000, 15000, 22000, 33000,
-##             39000, 47000, 56000, 68000, 75000, 82000,
-##             10000, 150000, 180000, 220000, 330000, 470000,
-##             560000, 680000, 1000000, 1500000, 2000000,
-##             3300000, 4700000, 5600000, 10000000]
-
 RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
              33, 39, 47, 56, 68, 75, 82, 100, 120, 150,
              180, 220, 270, 330, 390, 470, 510, 680, 820,
@@ -49,7 +45,8 @@ RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
              6800, 7500, 8200, 10000, 15000, 22000, 33000,
              39000, 47000, 56000, 68000, 75000, 82000,
              10000, 150000, 180000, 220000, 330000, 470000,
-             560000, 680000, 1000000, 1500000, 2000000]
+             560000, 680000, 1000000, 1500000, 2000000,
+             3300000, 4700000, 5600000, 10000000]
 
 ## Resistor band colors (index in list cooresponds to digit)
 DIGIT = ["black", "brown", "red", "orange", "yellow", "green",
@@ -60,6 +57,10 @@ MULTIPLIER = {"black":1, "brown":10, "red":100, "orange":1000,
               "yellow":10000, "green":100000, "blue":1000000,
               "purple":10000000, "gray":100000000,
               "white":1000000000, "gold":0.1, "silver":0.01}
+
+def int_list_to_int( int_list ):
+    temp = filter(str.isdigit, repr(int_list))
+    return int(temp)
 
 ## Builds 5 band color code
 def create_resistor_bands( ohms ):
@@ -95,8 +96,7 @@ def create_resistor_bands( ohms ):
 
     if( multiBand == 0 ):
         ohmList_sliced = [1] + ohmList[3:]
-        ohmList_temp = filter(str.isdigit, repr(ohmList_sliced))
-        multiBand = int(ohmList_temp)
+        multiBand = int_list_to_int(ohmList_sliced)
         
     for i in MULTIPLIER:
         if( multiBand == MULTIPLIER[i] ):
@@ -121,37 +121,66 @@ def get_offset(column, row, sublabel, width, height):
     elif( sublabel == 2 ):
         leftOffset = leftOffset + (LABEL_W*SCALE_MOD)/4 - width/2
 
-    upperOffset = UPPER_MARGIN*SCALE_MOD + LABEL_H*SCALE_MOD * (row - 1) + PADDING*SCALE_MOD
+    upperOffset = UPPER_MARGIN*SCALE_MOD + LABEL_H*SCALE_MOD * (row - 1) + (LABEL_H*SCALE_MOD)/2
 
     return leftOffset, upperOffset
         
+def shorten_name( name ):
+    nameList = [str(i) for i in str(name)]
 
-def create_image():
+    if( len(nameList) >= 2 ):
+        if( nameList[1] != "." ):
+            num = int_list_to_int(nameList)
+            if( num % 1000000 == 0 ):
+                return str(num/1000000) + "M"
+            elif( num % 1000 == 0 ):
+                return str(num/1000) + "K"
+
+    return name
+
+def create_image( filetype ):
+    imgFiles = []
+    
     size = (int(SHEET_W*SCALE_MOD), int(SHEET_H*SCALE_MOD))
     img = Image.new('RGB', size, "white")
     draw = ImageDraw.Draw(img)
 
     fontPath = "Arial.ttf"
-    fontSize = 12
-    ttf = ImageFont.truetype(fontPath, fontSize)
+    ttf = ImageFont.truetype(fontPath, FONT)
 
     currColumn = 1
     currSublabel = 1
     currRow = 1
+
+    ## Draws gridlines -- useful for debugging
+##    draw.rectangle(((LEFT_MARGIN*SCALE_MOD, UPPER_MARGIN*SCALE_MOD),((SHEET_W-RIGHT_MARGIN)*SCALE_MOD,
+##                                                                     (SHEET_H-LOWER_MARGIN)*SCALE_MOD)),
+##                                                                      fill=None, outline="black")
+##    draw.rectangle((((LEFT_MARGIN+LABEL_W)*SCALE_MOD, UPPER_MARGIN*SCALE_MOD),
+##                    ((LEFT_MARGIN+LABEL_W+MIDDLE_DIV)*SCALE_MOD,(SHEET_H-LOWER_MARGIN)*SCALE_MOD)),
+##                   fill=None, outline="black")
+##    
+##    for i in range(ROWS):
+##        draw.rectangle(((LEFT_MARGIN*SCALE_MOD,UPPER_MARGIN*SCALE_MOD+LABEL_H*SCALE_MOD*i),
+##                        ((SHEET_W-RIGHT_MARGIN)*SCALE_MOD,SCALE_MOD+LABEL_H*SCALE_MOD*(i+LABEL_H*SCALE_MOD))),fill=None, outline="black")
+    ##
     
     for i in RESISTORS:
-        ohms = str(i) + " Ohms"
+        ohms = str(shorten_name(i))
+        if( len(ohms) <= 1 ):
+            ohms += " Ohm"
+        else:
+            ohms += " Ohms"
         bands = create_resistor_bands(i)
         
         font_w, font_h = ttf.getsize(ohms)
         font_x, font_y = get_offset(currColumn, currRow, currSublabel, font_w, font_h)
-        font_y = font_y - PADDING*SCALE_MOD
+        font_y -= 1.5*font_h
 
         draw.text((font_x, font_y), ohms, font=ttf, fill="black")
 
-        shape_w, shape_h = (SHEET_W*SCALE_MOD)/20, font_h
+        shape_w, shape_h = (SHEET_W*SCALE_MOD)/10, font_h
         shape_x, shape_y = get_offset(currColumn, currRow, currSublabel, shape_w, shape_h)
-        shape_y = shape_y + PADDING*SCALE_MOD
 
         shapeMod = shape_w/5
 
@@ -169,8 +198,27 @@ def create_image():
             currRow = 1
             currColumn += 1
 
-    img.show()
+        if( currColumn > COLUMNS ):
+            currColumn = 1
+            currRow = 1
+            currSublabel = 1
 
-create_image()
+            imgFiles.append(img)
+
+            img = Image.new('RGB', size, "white")
+            draw = ImageDraw.Draw(img)
+
+    imgFiles.append(img)
+
+    for i in range(0,len(imgFiles)):
+        imgFiles[i].show()
+        imgFiles[i].save("ResistorLabels"+str(i)+filetype)
+
+    print "Success"
+
+def main():
+    create_image(".jpg")
+
+main()
     
     
