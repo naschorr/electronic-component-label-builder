@@ -32,6 +32,16 @@ ROWS = 15
 SCALE_MOD = 100
 
 ## Resistor values to generate labels for
+##RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
+##             33, 39, 47, 56, 68, 75, 82, 100, 120, 150,
+##             180, 220, 270, 330, 390, 470, 510, 680, 820,
+##             1000, 1500, 2200, 3300, 3900, 4700, 5600,
+##             6800, 7500, 8200, 10000, 15000, 22000, 33000,
+##             39000, 47000, 56000, 68000, 75000, 82000,
+##             10000, 150000, 180000, 220000, 330000, 470000,
+##             560000, 680000, 1000000, 1500000, 2000000,
+##             3300000, 4700000, 5600000, 10000000]
+
 RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
              33, 39, 47, 56, 68, 75, 82, 100, 120, 150,
              180, 220, 270, 330, 390, 470, 510, 680, 820,
@@ -39,8 +49,7 @@ RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
              6800, 7500, 8200, 10000, 15000, 22000, 33000,
              39000, 47000, 56000, 68000, 75000, 82000,
              10000, 150000, 180000, 220000, 330000, 470000,
-             560000, 680000, 1000000, 1500000, 2000000,
-             3300000, 4700000, 5600000, 10000000]
+             560000, 680000, 1000000, 1500000, 2000000]
 
 ## Resistor band colors (index in list cooresponds to digit)
 DIGIT = ["black", "brown", "red", "orange", "yellow", "green",
@@ -98,20 +107,22 @@ def create_resistor_bands( ohms ):
 
     tolBand = "brown"
 
-    return firstBand, secondBand, thirdBand, multiBand, tolBand
+    bands = [firstBand, secondBand, thirdBand, multiBand, tolBand]
+
+    return bands
 
 def get_offset(column, row, sublabel, width, height):
     if( column == 1 ):
-        leftOffset = LEFT_MARGIN*SCALE_MOD + (LABEL_W*SCALE_MOD) / 2
+        leftOffset = (LEFT_MARGIN + LABEL_W/2)*SCALE_MOD
     elif( column == 2 ):
-        leftOffset = LEFT_MARGIN*SCALE_MOD + LABEL_W*SCALE_MOD + MIDDLE_DIV*SCALE_MOD + (LABEL_W*SCALE_MOD) / 2
+        leftOffset = (LEFT_MARGIN + LABEL_W + MIDDLE_DIV + LABEL_W / 2)*SCALE_MOD
     else:
         leftOffset = 0
 
     if( sublabel == 1 ):
-        leftOffset -= (LABEL_W*SCALE_MOD)/4
+        leftOffset = leftOffset - (LABEL_W*SCALE_MOD)/4 - width/2
     elif( sublabel == 2 ):
-        leftOffset += (LABEL_W*SCALE_MOD)/4
+        leftOffset = leftOffset + (LABEL_W*SCALE_MOD)/4 - width/2
 
     upperOffset = UPPER_MARGIN*SCALE_MOD + LABEL_H*SCALE_MOD * (row - 1) + PADDING*SCALE_MOD
 
@@ -124,7 +135,7 @@ def create_image():
     draw = ImageDraw.Draw(img)
 
     fontPath = "Arial.ttf"
-    fontSize = 20
+    fontSize = 12
     ttf = ImageFont.truetype(fontPath, fontSize)
 
     currColumn = 1
@@ -132,16 +143,24 @@ def create_image():
     currRow = 1
     
     for i in RESISTORS:
-        print currSublabel,
-        print currRow,
-        print currColumn
-        
         ohms = str(i) + " Ohms"
-        firstBand, secondBand, thirdBand, multiBand, tolBand = create_resistor_bands(i)
+        bands = create_resistor_bands(i)
+        
         font_w, font_h = ttf.getsize(ohms)
         font_x, font_y = get_offset(currColumn, currRow, currSublabel, font_w, font_h)
+        font_y = font_y - PADDING*SCALE_MOD
 
-        draw.text((font_x*SCALE_MOD, font_y*SCALE_MOD), ohms, font=ttf, fill="black")
+        draw.text((font_x, font_y), ohms, font=ttf, fill="black")
+
+        shape_w, shape_h = (SHEET_W*SCALE_MOD)/20, font_h
+        shape_x, shape_y = get_offset(currColumn, currRow, currSublabel, shape_w, shape_h)
+        shape_y = shape_y + PADDING*SCALE_MOD
+
+        shapeMod = shape_w/5
+
+        for n in bands:
+            draw.rectangle(((shape_x, shape_y),(shape_x+shapeMod, shape_y+shapeMod)), fill=n, outline="white")
+            shape_x = shape_x + shapeMod
 
         currSublabel += 1
 
