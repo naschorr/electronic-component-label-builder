@@ -53,16 +53,13 @@ RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
 
 ## Resistor band colors (index in list cooresponds to digit)
 DIGIT = ["black", "brown", "red", "orange", "yellow", "green",
-         "blue", "violet", "gray", "white"]
+         "blue", "purple", "gray", "white"]
 
 ## Resistor band color map to multiplier
 MULTIPLIER = {"black":1, "brown":10, "red":100, "orange":1000,
               "yellow":10000, "green":100000, "blue":1000000,
-              "violet":10000000, "gray":100000000,
+              "purple":10000000, "gray":100000000,
               "white":1000000000, "gold":0.1, "silver":0.01}
-
-## Resistor tolerance (mine are all +- 1%)
-TOLERANCE = 1
 
 ## Builds 5 band color code
 def create_resistor_bands( ohms ):
@@ -97,7 +94,7 @@ def create_resistor_bands( ohms ):
             thirdBand = DIGIT[int(ohmList[2])]
 
     if( multiBand == 0 ):
-        ohmList_sliced = [1] + ohmList[2:]
+        ohmList_sliced = [1] + ohmList[3:]
         ohmList_temp = filter(str.isdigit, repr(ohmList_sliced))
         multiBand = int(ohmList_temp)
         
