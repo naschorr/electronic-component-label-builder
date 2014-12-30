@@ -26,7 +26,7 @@ FONT = 18
 PADDING = .2
 
 ## Number of labels to split each label into
-SUBLABELS = 2
+SUBLABELS = 2 ## TODO ADD WORKING SUBLABEL FUNCTIONALITY
 
 ## Number of rows in each label column
 ROWS = 15
@@ -38,15 +38,20 @@ COLUMNS = 2
 SCALE_MOD = 100
 
 ## Resistor values to generate labels for
+##RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
+##             33, 39, 47, 56, 68, 75, 82, 100, 120, 150,
+##             180, 220, 270, 330, 390, 470, 510, 680, 820,
+##             1000, 1500, 2200, 3300, 3900, 4700, 5600,
+##             6800, 7500, 8200, 10000, 15000, 22000, 33000,
+##             39000, 47000, 56000, 68000, 75000, 82000,
+##             10000, 150000, 180000, 220000, 330000, 470000,
+##             560000, 680000, 1000000, 1500000, 2000000,
+##             3300000, 4700000, 5600000, 10000000]
+
+## My container only has 24 slots, so we're going to use the 24 smallest resistors.
 RESISTORS = [1, 2.2, 4.7, 5.6, 7.5, 8.2, 10, 15, 22, 27,
              33, 39, 47, 56, 68, 75, 82, 100, 120, 150,
-             180, 220, 270, 330, 390, 470, 510, 680, 820,
-             1000, 1500, 2200, 3300, 3900, 4700, 5600,
-             6800, 7500, 8200, 10000, 15000, 22000, 33000,
-             39000, 47000, 56000, 68000, 75000, 82000,
-             10000, 150000, 180000, 220000, 330000, 470000,
-             560000, 680000, 1000000, 1500000, 2000000,
-             3300000, 4700000, 5600000, 10000000]
+             180, 220, 270, 330]
 
 ## Resistor band colors (index in list cooresponds to digit)
 DIGIT = ["black", "brown", "red", "orange", "yellow", "green",
@@ -59,8 +64,7 @@ MULTIPLIER = {"black":1, "brown":10, "red":100, "orange":1000,
               "white":1000000000, "gold":0.1, "silver":0.01}
 
 def int_list_to_int( int_list ):
-    temp = filter(str.isdigit, repr(int_list))
-    return int(temp)
+    return int(filter(str.isdigit, repr(int_list)))
 
 ## Builds 5 band color code
 def create_resistor_bands( ohms ):
@@ -109,6 +113,8 @@ def create_resistor_bands( ohms ):
     return bands
 
 def get_offset(column, row, sublabel, width, height):
+
+    ## TODO: ADD BETTER SUPPORT FOR COLUMNS
     if( column == 1 ):
         leftOffset = (LEFT_MARGIN + LABEL_W/2)*SCALE_MOD
     elif( column == 2 ):
@@ -116,6 +122,7 @@ def get_offset(column, row, sublabel, width, height):
     else:
         leftOffset = 0
 
+    ## TODO: ADD BETTER SUPPORT FOR SUBLABELS
     if( sublabel == 1 ):
         leftOffset = leftOffset - (LABEL_W*SCALE_MOD)/4 - width/2
     elif( sublabel == 2 ):
@@ -145,7 +152,7 @@ def create_image( filetype ):
     img = Image.new('RGB', size, "white")
     draw = ImageDraw.Draw(img)
 
-    fontPath = "Arial.ttf"
+    fontPath = "ARIAL.ttf"
     ttf = ImageFont.truetype(fontPath, FONT)
 
     currColumn = 1
@@ -217,7 +224,7 @@ def create_image( filetype ):
     print "Success"
 
 def main():
-    create_image(".jpg")
+    create_image(".png")
 
 main()
     
