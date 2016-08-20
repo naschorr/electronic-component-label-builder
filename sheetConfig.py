@@ -10,20 +10,23 @@ ROWS = 15
 COLUMNS = 2
 
 class SheetConfig:
-	def __init__(
-			self, sheetHeight=HEIGHT, sheetWidth=WIDTH, upperMargin=UPPER_MARGIN, 
-			leftMargin=LEFT_MARGIN, middlePadding=MIDDLE_PADDING,
-			labelHeight=LABEL_HEIGHT, labelWidth=LABEL_WIDTH, sheetRows=ROWS, 
-			sheetColumns=COLUMNS):
-		self._sheetHeight = sheetHeight
-		self._sheetWidth = sheetWidth
-		self._upperMargin = upperMargin
-		self._leftMargin = leftMargin
-		self._middlePadding = middlePadding
-		self._labelHeight = labelHeight
-		self._labelWidth = labelWidth
-		self._rows = sheetRows
-		self._cols = sheetColumns
+	def __init__(self, **kwargs):
+
+		def kwargExists(kwarg):
+			if kwarg in kwargs:
+				return kwargs[kwarg]
+			else:
+				return False
+
+		self.sheetHeight = kwargExists("sheetHeight") or HEIGHT
+		self.sheetWidth = kwargExists("sheetWidth") or WIDTH
+		self.upperMargin = kwargExists("upperMargin") or UPPER_MARGIN
+		self.leftMargin = kwargExists("leftMargin") or LEFT_MARGIN
+		self.middlePadding = kwargExists("middlePadding") or MIDDLE_PADDING
+		self.labelHeight = kwargExists("labelHeight") or LABEL_HEIGHT
+		self.labelWidth = kwargExists("labelWidth") or LABEL_WIDTH
+		self.rows = kwargExists("rows") or ROWS
+		self.cols = kwargExists("cols") or COLUMNS
 
 	## Properties
 

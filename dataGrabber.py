@@ -1,7 +1,7 @@
 class Data:
 	def __init__(self, pathToFile):
-		self._pathToFile = pathToFile
-		self._dataLines = self.getDataLinesFromFile(self.pathToFile)
+		self.pathToFile = pathToFile
+		self.dataLines = self.getDataLinesFromFile(self.pathToFile)
 
 	## Properties
 

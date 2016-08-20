@@ -8,7 +8,7 @@ UNITS = ""
 CONDENSE_VALUE = True
 
 ## Band information
-METRIC_PREFIXES = ["n", "µ", "m", "", "k", "M", "G"]
+METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
 COLORS = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
 RESISTOR_MULTIS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 100000:"green", 1000000:"blue", 10000000:"purple", 100000000:"gray", 1000000000:"white", 0.1:"gold", 0.01:"silver"}
 RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.05:"gray", 5:"gold", 10:"silver"}
@@ -18,14 +18,19 @@ CAPACITOR_MULTIS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yell
 CAPACITOR_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}
 
 class Component:
-	def __init__(
-			self, dataObj, unitName=UNITS, tolerance=TOLERANCE,
-			bandCount=BAND_COUNT, condense=CONDENSE_VALUE):
-		self._dataObj = dataObj
-		self._unitName = unitName
-		self._tolerance = tolerance
-		self._bandCount = bandCount
-		self._condense = condense
+	def __init__(self, dataObj, **kwargs):
+
+		def kwargExists(kwarg):
+			if kwarg in kwargs:
+				return kwargs[kwarg]
+			else:
+				return False
+
+		self.dataObj = dataObj
+		self.unitName = kwargExists("unitName") or UNITS
+		self.tolerance = kwargExists("tolerance") or TOLERANCE
+		self.bandCount = kwargExists("bandCount") or BAND_COUNT
+		self.condense = kwargExists("condense") or CONDENSE_VALUE
 
 		self._labels = []
 

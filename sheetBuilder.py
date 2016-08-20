@@ -14,114 +14,176 @@ SCALE = 500
 DEBUG = False
 
 class SheetBuilder:
-	def __init__(
-			self, sheetConfig, labels, outputType=OUTPUT_TYPE, font=FONT,
-			fontSize=FONT_SIZE, boxSize=BOX_SIZE, boxSpacerWidth=BOX_SPACER_WIDTH,
-			labelsPerSticker=LABELS_PER_STICKER, labelTextOffset=LABEL_TEXT_OFFSET,
-			labelColorCodeOffset=LABEL_COLORCODE_OFFSET, scale=SCALE, debug=DEBUG):
-		self._sheetConfig = sheetConfig
-		self._labels = labels
-		self._outputType = outputType
-		self._font = font
-		self._fontSize = fontSize
-		self._boxSize = boxSize
-		self._boxSpacerWidth = boxSpacerWidth
-		self._labelsPerSticker = labelsPerSticker
-		self._labelTextOffset = labelTextOffset
-		self._labelColorCodeOffset = labelColorCodeOffset
-		self._scale = scale
-		self._debug = debug
+	def __init__(self, sheetConfig, labels, **kwargs):
+
+		def kwargExists(kwarg):
+			if kwarg in kwargs:
+				return kwargs[kwarg]
+			else:
+				return False
+
+		## Load scale first so that it can be used to modify other incoming values
+		self.scale = kwargExists("scale") or SCALE
+		
+		self.sheetConfig = sheetConfig
+		self.labels = labels
+
+		self.outputType = kwargExists("outputType") or OUTPUT_TYPE
+		self.font = kwargExists("font") or FONT
+		self.fontSize = kwargExists("fontSize") or FONT_SIZE
+		self.boxSize = kwargExists("boxSize") or BOX_SIZE
+		self.boxSpacerWidth = kwargExists("boxSpacerWidth") or BOX_SPACER_WIDTH
+		self.labelsPerSticker = kwargExists("labelsPerSticker") or LABELS_PER_STICKER
+		self.labelTextOffset = kwargExists("labelTextOffset") or LABEL_TEXT_OFFSET
+		self.labelColorCodeOffset = kwargExists("labelColorCodeOffset") or LABEL_COLORCODE_OFFSET
+		self.debug = kwargExists("debug") or DEBUG
 
 		self.drawSheet()
 
 	## Properties
 
 	@property
+	def scale(self):
+		return self._scale
+
+	@scale.setter
+	def scale(self, value):
+		self._scale = value
+
+	@property
 	def sheetConfig(self):
 		return self._sheetConfig
 	
+	@sheetConfig.setter
+	def sheetConfig(self, value):
+		## Update the sheetConfig's attributes by scaling up
+		value.sheetHeight *= self.scale
+		value.sheetWidth *= self.scale
+		value.upperMargin *= self.scale
+		value.leftMargin *= self.scale
+		value.middlePadding *= self.scale
+		value.labelHeight *= self.scale
+		value.labelWidth *= self.scale
+		self._sheetConfig = value
+
 	@property
 	def labels(self):
 		return self._labels
+
+	@labels.setter
+	def labels(self, value):
+		self._labels = value
 
 	@property
 	def outputType(self):
 		return self._outputType
 	
+	@outputType.setter
+	def outputType(self, value):
+		self._outputType = value
+
 	@property
 	def font(self):
 		return self._font
+
+	@font.setter
+	def font(self, value):
+		self._font = value
 
 	@property
 	def fontSize(self):
 		return self._fontSize
 
+	@fontSize.setter
+	def fontSize(self, value):
+		self._fontSize = value
+
 	@property
 	def boxSize(self):
 		return self._boxSize
+
+	@boxSize.setter
+	def boxSize(self, value):
+		self._boxSize = value * self.scale
 
 	@property
 	def boxSpacerWidth(self):
 		return self._boxSpacerWidth
 
+	@boxSpacerWidth.setter
+	def boxSpacerWidth(self, value):
+		self._boxSpacerWidth = value * self.scale
+
 	@property
 	def labelsPerSticker(self):
 		return self._labelsPerSticker
 
+	@labelsPerSticker.setter
+	def labelsPerSticker(self, value):
+		self._labelsPerSticker = value
+
 	@property
 	def labelTextOffset(self):
 		return self._labelTextOffset
+
+	@labelTextOffset.setter
+	def labelTextOffset(self, value):
+		self._labelTextOffset = value * self.scale
 	
 	@property
 	def labelColorCodeOffset(self):
 		return self._labelColorCodeOffset
-	
-	@property
-	def scale(self):
-		return self._scale
+
+	@labelColorCodeOffset.setter
+	def labelColorCodeOffset(self, value):
+		self._labelColorCodeOffset = value * self.scale
 
 	@property
 	def debug(self):
 		return self._debug
+
+	@debug.setter
+	def debug(self, value):
+		self._debug = value
 	
 	## Methods
 
 	def getLabelBounds(self, row, col):
 		sc = self.sheetConfig
-		topLeftX = (sc.leftMargin+col*sc.labelWidth+col*sc.middlePadding)*self.scale
-		topLeftY = (sc.upperMargin+row*sc.labelHeight)*self.scale
-		botRightX = topLeftX+(sc.labelWidth)*self.scale-1
-		botRightY = topLeftY+(sc.labelHeight)*self.scale-1
+		topLeftX = sc.leftMargin+col*sc.labelWidth+col*sc.middlePadding
+		topLeftY = sc.upperMargin+row*sc.labelHeight
+		botRightX = topLeftX+sc.labelWidth-1
+		botRightY = topLeftY+sc.labelHeight-1
 		return topLeftX, topLeftY, botRightX, botRightY
 
 	def drawColorCode(self, draw, colorCode, centerX, centerY):
-		colorCodeWidth = (len(colorCode)*self.boxSize+(len(colorCode)-1)*self.boxSpacerWidth)*self.scale
-		colorCodeHeight = self.boxSize*self.scale
+		## Determine overall width of the color code boxes, then get the top left corner's coorderinates from that.
+		colorCodeWidth = len(colorCode)*self.boxSize+(len(colorCode)-1)*self.boxSpacerWidth
 		topLeftX = centerX - colorCodeWidth/2
-		topLeftY = centerY - colorCodeHeight/2
-		scaledBox = self.boxSize*self.scale
+		topLeftY = centerY - self.boxSize/2
+		## Draw the boxes with 
 		for box, color in enumerate(colorCode):
-			draw.rectangle([topLeftX + box*(scaledBox+self.boxSpacerWidth*self.scale), topLeftY, topLeftX + box*(scaledBox+self.boxSpacerWidth*self.scale) + scaledBox, topLeftY + scaledBox], color, 'black')
+			draw.rectangle([topLeftX + box*(self.boxSize+self.boxSpacerWidth), topLeftY, topLeftX + box*(self.boxSize+self.boxSpacerWidth) + self.boxSize, topLeftY + self.boxSize], color, 'black')
 
 	def drawDebug(self, image, draw):
 		sc = self.sheetConfig
 		## Draw the horizontal and vertical rules on the sheet
-		for h in range(0, int(sc.sheetWidth*self.scale), int(0.5*self.scale)):
+		for h in range(0, int(sc.sheetWidth), int(0.5*self.scale)):
 			length = 0.4*self.scale
 			if(h % 100):
 				length = 0.25*self.scale
 			draw.line([h, 0, h, length], "black", 1)
-		for w in range(0, int(sc.sheetHeight*self.scale), int(0.5*self.scale)):
+		for w in range(0, int(sc.sheetHeight), int(0.5*self.scale)):
 			length = 0.4*self.scale
 			if(w % 100):
 				length = 0.25*self.scale
 			draw.line([0, w, length, w], "black", 1)
 
 		## Draw the boundary of the sheet
-		draw.rectangle([0, 0, sc.sheetWidth*self.scale-1, sc.sheetHeight*self.scale-1], None, 'red')
+		draw.rectangle([0, 0, sc.sheetWidth-1, sc.sheetHeight-1], None, 'red')
 
 		## Draw the boundary of the area between the margins
-		draw.rectangle([sc.leftMargin*self.scale, sc.upperMargin*self.scale, (sc.sheetWidth-sc.leftMargin)*self.scale-1, (sc.sheetHeight-sc.upperMargin)*self.scale-1], None, 'green')
+		draw.rectangle([sc.leftMargin, sc.upperMargin, sc.sheetWidth-sc.leftMargin-1, sc.sheetHeight-sc.upperMargin-1], None, 'green')
 
 		## Draw the boundary of the individual stickers
 		for row in range(sc.rows):
@@ -141,25 +203,29 @@ class SheetBuilder:
 					labelCounter = 0
 					topLeftX, topLeftY, botRightX, botRightY = self.getLabelBounds(rowCounter, colCounter)
 					while(labelCounter < self.labelsPerSticker and len(self.labels) > 0):
+						## Determine the label's text and color code positions
 						labelText = self.labels[0].text
 						textWidth, textHeight = ttf.getsize(labelText)
 						
-						labelXPositionSection = (sc.labelWidth*self.scale)/(self.labelsPerSticker*2)
+						labelXPositionSection = (sc.labelWidth)/(self.labelsPerSticker*2)
 						labelXCenter = topLeftX + labelXPositionSection + labelCounter*(labelXPositionSection*2)
 
-						textYOffset = topLeftY + (sc.labelHeight*self.scale)/4 - textHeight/2 + self.labelTextOffset*self.scale
-						colorCodeYOffset = topLeftY + 3*((sc.labelHeight*self.scale)/4) + self.labelColorCodeOffset*self.scale
+						textYOffset = topLeftY + (sc.labelHeight)/4 - textHeight/2 + self.labelTextOffset
+						colorCodeYOffset = topLeftY + 3*((sc.labelHeight)/4) + self.labelColorCodeOffset
 
+						## Draw the label's text and color code
 						draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
 						self.drawColorCode(draw, self.labels[0].colorCode, labelXCenter, colorCodeYOffset)
 
+						## Delete the just recently drawn label
 						del self.labels[0]
 						labelCounter += 1
 					colCounter += 1
 				rowCounter += 1
 
+			## For every new sheet...
 			sheets.append(image)
-			sheetSize = (int(self.sheetConfig.sheetWidth*self.scale), int(self.sheetConfig.sheetHeight*self.scale))
+			sheetSize = (int(self.sheetConfig.sheetWidth), int(self.sheetConfig.sheetHeight))
 			image = Image.new('RGB', sheetSize, 'white')
 			draw = ImageDraw.Draw(image)
 
@@ -171,7 +237,7 @@ class SheetBuilder:
 			image.show()
 
 	def drawSheet(self):
-		sheetSize = (int(self.sheetConfig.sheetWidth*self.scale), int(self.sheetConfig.sheetHeight*self.scale))
+		sheetSize = (int(self.sheetConfig.sheetWidth), int(self.sheetConfig.sheetHeight))
 		image = Image.new('RGB', sheetSize, 'white')
 		draw = ImageDraw.Draw(image)
 		ttf = ImageFont.truetype(self.font, self.fontSize)
