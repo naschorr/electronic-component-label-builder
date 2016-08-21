@@ -3,12 +3,14 @@ import label
 
 ## Defaults
 TOLERANCE = 5.0
-BAND_COUNT = 5
+BAND_COUNT = 5 	# Only supports 4 and 5 band codes so far
 UNITS = ""
 CONDENSE_VALUE = True
 
-## Band information
+## Prefixes
 METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
+
+## Band information
 COLORS = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
 RESISTOR_MULTIS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 100000:"green", 1000000:"blue", 10000000:"purple", 100000000:"gray", 1000000000:"white", 0.1:"gold", 0.01:"silver"}
 RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.05:"gray", 5:"gold", 10:"silver"}
@@ -70,7 +72,14 @@ class Component:
 	
 	@bandCount.setter
 	def bandCount(self, value):
-		self._bandCount = value
+		if(value < 4):
+			print("Supplied bandCount of", value, "is too low. Defaulting to 4.")
+			self._bandCount = 4
+		elif(value > 5):
+			print("Supplied bandCount of", value, "is too high. Defaulting to 5.")
+			self._bandCount = 5
+		else:
+			self._bandCount = value
 
 	@property
 	def condense(self):
@@ -138,10 +147,16 @@ class Component:
 			stringData += "0"
 
 		bands = self.bandCount*["black"]
+
 		for index in range(3):
 			bands[index] = COLORS[int(stringData[index])]
+
 		bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
 
-		bands[-2] = RESISTOR_MULTIS[round((integer + fractional) / int(stringData), 2)]
+		multiplier = round((integer + fractional) / int(stringData), 2)
+		if(self.bandCount == 4):
+			bands[-2] = RESISTOR_MULTIS[multiplier*10]
+		elif(self.bandCount == 5):
+			bands[-2] = RESISTOR_MULTIS[multiplier]
 
 		return name, bands
