@@ -14,9 +14,9 @@ class SheetConfig:
 
 		def kwargExists(kwarg):
 			if kwarg in kwargs:
-				return kwargs[kwarg]
-			else:
-				return False
+				if(kwargs[kwarg] is not None):
+					return kwargs[kwarg]
+			return None
 
 		self.sheetHeight = kwargExists("sheetHeight") or HEIGHT
 		self.sheetWidth = kwargExists("sheetWidth") or WIDTH
@@ -26,7 +26,7 @@ class SheetConfig:
 		self.labelHeight = kwargExists("labelHeight") or LABEL_HEIGHT
 		self.labelWidth = kwargExists("labelWidth") or LABEL_WIDTH
 		self.rows = kwargExists("rows") or ROWS
-		self.cols = kwargExists("cols") or COLUMNS
+		self.cols = kwargExists("columns") or COLUMNS
 
 	## Properties
 

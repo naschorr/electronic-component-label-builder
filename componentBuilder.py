@@ -12,11 +12,9 @@ METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
 
 ## Band information
 COLORS = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
-RESISTOR_MULTIS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 100000:"green", 1000000:"blue", 10000000:"purple", 100000000:"gray", 1000000000:"white", 0.1:"gold", 0.01:"silver"}
+MULTIPLIERS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 100000:"green", 1000000:"blue", 10000000:"purple", 100000000:"gray", 1000000000:"white", 0.1:"gold", 0.01:"silver"}
 RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.05:"gray", 5:"gold", 10:"silver"}
-INDUCTOR_MULTIS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 0.1:"gold", 0.01:"silver"}
 INDUCTOR_TOLS = {20:"black", 1:"brown", 2:"red", 5:"green", 10:"white"}
-CAPACITOR_MULTIS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 100000:"green", 1000000:"blue", 10000000:"purple"}
 CAPACITOR_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}
 
 class Component:
@@ -24,20 +22,22 @@ class Component:
 
 		def kwargExists(kwarg):
 			if kwarg in kwargs:
-				return kwargs[kwarg]
-			else:
-				return False
+				if(kwargs[kwarg] is not None):
+					return kwargs[kwarg]
+			return None
 
 		self.dataObj = dataObj
 		self.unitName = kwargExists("unitName") or UNITS
 		self.tolerance = kwargExists("tolerance") or TOLERANCE
 		self.bandCount = kwargExists("bandCount") or BAND_COUNT
-		self.condense = kwargExists("condense") or CONDENSE_VALUE
+		## Handle issue bool kwargs can be set to True or False, and to prefer that over the default setting.
+		condenseState = kwargExists("condense")
+		self.condense = condenseState if condenseState is True or condenseState is False else CONDENSE_VALUE
 
 		self._labels = []
 
 		for value in self.dataObj.dataLines:
-			text, colorCode = self.buildResistorLabel(value)
+			text, colorCode = self.buildComponentLabel(value)
 			self.labels.append(label.Label(text, colorCode))
 
 	## Properties
@@ -125,7 +125,7 @@ class Component:
 		return str(value) + METRIC_PREFIXES[count + int(len(METRIC_PREFIXES)/2)]
 
 
-	def buildResistorLabel(self, data):
+	def buildComponentLabel(self, data):
 		p = inflect.engine()
 		integer = int(float(data))
 		fractional = round(float(data) % 1, 1)
@@ -133,30 +133,37 @@ class Component:
 		if(fractional != 0.0):
 			stringData += str(fractional)[2:]
 
+		## Condense the name (ex. 10000 -> 10k) if the user has allowed it
 		if(self.condense):
 			name = self.condenseValue(data)
 		else:
 			name = data
 
-		if(float(data) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
-			name += " " + p.plural(self.unitName)
-		else:
-			name += " " + self.unitName
+		## Make sure that there is a unitname to append
+		if(len(self.unitName) > 0):
+			## Pluralize the name if it's not singular, and doesn't contain special characters
+			if(float(data) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
+				name += " " + p.plural(self.unitName)
+			else:
+				name += " " + self.unitName
 
+		## Pad the string of numbers out to 3 zeroes
 		while(len(stringData) < 3):
 			stringData += "0"
 
+		## Ppopulate the first 3 indecies with the appropriate colors
 		bands = self.bandCount*["black"]
-
 		for index in range(3):
 			bands[index] = COLORS[int(stringData[index])]
 
+		## Populate the tolerance band with its color
 		bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
 
-		multiplier = round((integer + fractional) / int(stringData), 2)
+		## Populate the multiplier band with its color
+		multiplierIndex = round((integer + fractional) / int(stringData), 2)
 		if(self.bandCount == 4):
-			bands[-2] = RESISTOR_MULTIS[multiplier*10]
+			bands[-2] = MULTIPLIERS[multiplierIndex*10]
 		elif(self.bandCount == 5):
-			bands[-2] = RESISTOR_MULTIS[multiplier]
+			bands[-2] = MULTIPLIERS[multiplierIndex]
 
 		return name, bands

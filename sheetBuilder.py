@@ -18,9 +18,9 @@ class SheetBuilder:
 
 		def kwargExists(kwarg):
 			if kwarg in kwargs:
-				return kwargs[kwarg]
-			else:
-				return False
+				if(kwargs[kwarg] is not None):
+					return kwargs[kwarg]
+			return None
 
 		## Load scale first so that it can be used to modify other incoming values
 		self.scale = kwargExists("scale") or SCALE
@@ -36,7 +36,9 @@ class SheetBuilder:
 		self.labelsPerSticker = kwargExists("labelsPerSticker") or LABELS_PER_STICKER
 		self.labelTextOffset = kwargExists("labelTextOffset") or LABEL_TEXT_OFFSET
 		self.labelColorCodeOffset = kwargExists("labelColorCodeOffset") or LABEL_COLORCODE_OFFSET
-		self.debug = kwargExists("debug") or DEBUG
+		## Handle issue bool kwargs can be set to True or False, and to prefer that over the default setting.
+		debugState = kwargExists("debug")
+		self.debug = debugState if debugState is True or debugState is False else DEBUG
 
 		self.drawSheet()
 
