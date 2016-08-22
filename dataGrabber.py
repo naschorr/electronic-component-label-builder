@@ -1,17 +1,17 @@
 class Data:
-	def __init__(self, pathToFile):
-		self.pathToFile = pathToFile
-		self.dataLines = self.getDataLinesFromFile(self.pathToFile)
+	def __init__(self, pathToData):
+		self.pathToData = pathToData
+		self.dataLines = self.getDataLinesFromFile(self.pathToData)
 
 	## Properties
 
 	@property
-	def pathToFile(self):
-		return self._pathToFile
+	def pathToData(self):
+		return self._pathToData
 	
-	@pathToFile.setter
-	def pathToFile(self, value):
-		self._pathToFile = value
+	@pathToData.setter
+	def pathToData(self, value):
+		self._pathToData = value
 
 	@property
 	def dataLines(self):
@@ -28,7 +28,6 @@ class Data:
 
 	def getDataLinesFromFile(self, file):
 		data = []
-		with open(file, 'r') as fd:
-			for line in fd:
-				data.append(self.formatString(line))
+		for line in file:	# File opened via click
+			data.append(self.formatString(line))
 		return data

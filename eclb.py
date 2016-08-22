@@ -6,6 +6,7 @@ import sheetConfig
 import sheetBuilder
 
 @click.command()
+@click.argument('path-to-data', type=click.File('r'))
 @click.option('--sheet-height', type=float, help='The height of the label sheet. (inches)')
 @click.option('--sheet-width', type=float, help='The width of the label sheet. (inches)')
 @click.option('--upper-margin', type=float, help='The vertical size of the top-most margin. (inches)')
@@ -21,7 +22,7 @@ import sheetBuilder
 @click.option('--condense/--no-condense', default=True, help="Choose whether or not to condense the component's value down. (ex. 10000 -> 1k)")
 @click.option('--scale', '-s', type=int, help='The scale for rendering the sticker sheet. Bigger scale means higher resolution. Might have to play around with this to get the units to work.')
 @click.option('--output-format', '-o', help='Image type to save the sticker sheet as.')
-@click.option('--font', type=click.Path(exists=True), help='Path to font to use in label text.')
+@click.option('--font', type=click.Path(exists=True), help='Path to the font to use in label text.')
 @click.option('--font-size', '-f', type=int, help='The size of the font used on the labels.')
 @click.option('--box-size', type=float, help='The size of the boxes that hold color bands. (inches)')
 @click.option('--box-spacer-width', type=float, help='The size of the spacer between the color band boxes. (inches)')
@@ -30,10 +31,11 @@ import sheetBuilder
 @click.option('--label-colorcode-offset', type=float, help='The vertical distance to offset label color codes. (Positive values offset it down, and negatives offset it up.)')
 @click.option('--debug/--no-debug', default=False, help='Choose to render debug gridlines on the sticker sheet. (Helps with alignment)')
 def main(
-		sheet_height, sheet_width, upper_margin, left_margin, middle_padding, 
-		label_height, label_width, rows, columns, units, tolerance, bands, 
-		condense, scale, output_format, font, font_size, box_size, box_spacer_width,
-		labels_per_sticker, label_text_offset, label_colorcode_offset, debug):
+		path_to_data, sheet_height, sheet_width, upper_margin, left_margin, 
+		middle_padding, label_height, label_width, rows, columns, units, 
+		tolerance, bands, condense, scale, output_format, font, font_size, 
+		box_size, box_spacer_width, labels_per_sticker, label_text_offset, 
+		label_colorcode_offset, debug):
 
 	sheetConfigArgs = {
 		"sheetHeight":sheet_height, "sheetWidth":sheet_width, "upperMargin":upper_margin,
@@ -52,7 +54,7 @@ def main(
 		"labelColorCodeOffset":label_colorcode_offset, "debug":debug
 	}
 
-	data = dataGrabber.Data('resources/resistors.txt')
+	data = dataGrabber.Data(path_to_data)
 	labels = componentBuilder.Component(data, **componentBuilderArgs).labels
 	sheetConf = sheetConfig.SheetConfig(**sheetConfigArgs)
 	sheet = sheetBuilder.SheetBuilder(sheetConf, labels, **sheetBuilderArgs)
