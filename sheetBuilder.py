@@ -34,8 +34,10 @@ class SheetBuilder:
 		self.boxSize = kwargExists("boxSize") or BOX_SIZE
 		self.boxSpacerWidth = kwargExists("boxSpacerWidth") or BOX_SPACER_WIDTH
 		self.labelsPerSticker = kwargExists("labelsPerSticker") or LABELS_PER_STICKER
-		self.labelTextOffset = kwargExists("labelTextOffset") or LABEL_TEXT_OFFSET
-		self.labelColorCodeOffset = kwargExists("labelColorCodeOffset") or LABEL_COLORCODE_OFFSET
+		labelTextOffsetState = kwargExists("labelTextOffset")
+		self.labelTextOffset = labelTextOffsetState if labelTextOffsetState is not None else LABEL_TEXT_OFFSET
+		labelColorCodeOffsetState = kwargExists("labelColorCodeOffset")
+		self.labelColorCodeOffset = labelColorCodeOffsetState if labelColorCodeOffsetState is not None else LABEL_COLORCODE_OFFSET
 		## Handle issue bool kwargs can be set to True or False, and to prefer that over the default setting.
 		debugState = kwargExists("debug")
 		self.debug = debugState if debugState is True or debugState is False else DEBUG
@@ -212,12 +214,16 @@ class SheetBuilder:
 						labelXPositionSection = (sc.labelWidth)/(self.labelsPerSticker*2)
 						labelXCenter = topLeftX + labelXPositionSection + labelCounter*(labelXPositionSection*2)
 
-						textYOffset = topLeftY + (sc.labelHeight)/4 - textHeight/2 + self.labelTextOffset
-						colorCodeYOffset = topLeftY + 3*((sc.labelHeight)/4) + self.labelColorCodeOffset
-
-						## Draw the label's text and color code
-						draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
-						self.drawColorCode(draw, self.labels[0].colorCode, labelXCenter, colorCodeYOffset)
+						textYOffset = topLeftY + sc.labelHeight/4 - textHeight/2 + self.labelTextOffset
+						
+						if(self.labels[0].colorCode is None):
+							textYOffset += sc.labelHeight/4
+							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
+						else:
+							colorCodeYOffset = topLeftY + 3*((sc.labelHeight)/4) + self.labelColorCodeOffset
+							## Draw the label's text and color code
+							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
+							self.drawColorCode(draw, self.labels[0].colorCode, labelXCenter, colorCodeYOffset)
 
 						## Delete the just recently drawn label
 						del self.labels[0]

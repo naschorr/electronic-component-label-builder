@@ -6,6 +6,7 @@ TOLERANCE = 5.0
 BAND_COUNT = 5 	# Only supports 4 and 5 band codes so far
 UNITS = ""
 CONDENSE_VALUE = True
+SHOW_COLOR_CODES = True
 
 ## Prefixes
 METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
@@ -16,6 +17,11 @@ MULTIPLIERS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 
 RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.05:"gray", 5:"gold", 10:"silver"}
 INDUCTOR_TOLS = {20:"black", 1:"brown", 2:"red", 5:"green", 10:"white"}
 CAPACITOR_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}
+
+## Component identification strings
+RESISTOR_ID = ['Ω', 'ohm', 'resist']
+INDUCTOR_ID = ['henr', 'induct']
+CAPACITOR_ID = ['farad', 'capacit']
 
 class Component:
 	def __init__(self, dataObj, **kwargs):
@@ -33,6 +39,8 @@ class Component:
 		## Handle issue bool kwargs can be set to True or False, and to prefer that over the default setting.
 		condenseState = kwargExists("condense")
 		self.condense = condenseState if condenseState is True or condenseState is False else CONDENSE_VALUE
+		colorCodeState = kwargExists("showColorCodes")
+		self.showColorCodes = colorCodeState if colorCodeState is True or colorCodeState is False else SHOW_COLOR_CODES
 
 		self._labels = []
 
@@ -88,6 +96,14 @@ class Component:
 	@condense.setter
 	def condense(self, value):
 		self._condense = value
+
+	@property
+	def showColorCodes(self):
+		return self._showColorCodes
+	
+	@showColorCodes.setter
+	def showColorCodes(self, value):
+		self._showColorCodes = value
 	
 	@property
 	def labels(self):
@@ -147,23 +163,28 @@ class Component:
 			else:
 				name += " " + self.unitName
 
-		## Pad the string of numbers out to 3 zeroes
-		while(len(stringData) < 3):
-			stringData += "0"
+		if(self.showColorCodes is True):
+			## Pad the string of numbers out to 3 zeroes
+			while(len(stringData) < 3):
+				stringData += "0"
 
-		## Ppopulate the first 3 indecies with the appropriate colors
-		bands = self.bandCount*["black"]
-		for index in range(3):
-			bands[index] = COLORS[int(stringData[index])]
+			## Ppopulate the first 3 indecies with the appropriate colors
+			bands = self.bandCount*["black"]
+			for counter, datum in enumerate(stringData):
+				bands[counter] = COLORS[int(datum)]
 
-		## Populate the tolerance band with its color
-		bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
+			## Populate the tolerance band with its color
+			bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
 
-		## Populate the multiplier band with its color
-		multiplierIndex = round((integer + fractional) / int(stringData), 2)
-		if(self.bandCount == 4):
-			bands[-2] = MULTIPLIERS[multiplierIndex*10]
-		elif(self.bandCount == 5):
-			bands[-2] = MULTIPLIERS[multiplierIndex]
+			## Populate the multiplier band with its color
+			multiplierIndex = round((integer + fractional) / int(stringData), 2)
+			if(self.bandCount == 4):
+				bands[-2] = MULTIPLIERS[multiplierIndex*10]
+			elif(self.bandCount == 5):
+				bands[-2] = MULTIPLIERS[multiplierIndex]
 
-		return name, bands
+			return name, bands
+
+		else:
+			return name, None
+			
