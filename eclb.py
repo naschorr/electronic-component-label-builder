@@ -22,6 +22,8 @@ import sheetBuilder
 @click.option('--condense/--no-condense', default=True, help="Choose whether or not to condense the component's value down. (ex. 10000 -> 1k)")
 @click.option('--color-codes/--no-color-codes', default=True, help='Choose to show the color code or not.')
 @click.option('--show-tolerance/--no-tolerance', default=True, help='Choose to show a tolerance band in the color code.')
+@click.option('--voltage', type=int, help='The voltage rating for the capacitors.')
+@click.option('--temperature', type=int, help='The temperature coefficient of the capacitors.')
 @click.option('--scale', '-s', type=int, help='The scale for rendering the sticker sheet. Bigger scale means higher resolution. Might have to play around with this to get the units to work.')		# sheetBuilder
 @click.option('--output-format', '-o', help='Image type to save the sticker sheet as.')
 @click.option('--font', type=click.Path(exists=True), help='Path to the font to use in label text.')
@@ -35,9 +37,10 @@ import sheetBuilder
 def main(
 		path_to_component_data, sheet_height, sheet_width, upper_margin, 
 		left_margin, middle_padding, label_height, label_width, rows, columns,
-		units, tolerance, bands, condense, color_codes, show_tolerance, scale, 
-		output_format, font, font_size, box_size, box_spacer_width, 
-		labels_per_sticker, label_text_offset, label_colorcode_offset, debug):
+		units, tolerance, bands, condense, color_codes, show_tolerance, 
+		voltage, temperature, scale, output_format, font, font_size, box_size, 
+		box_spacer_width, labels_per_sticker, label_text_offset, 
+		label_colorcode_offset, debug):
 
 	sheetConfigArgs = {
 		"sheetHeight":sheet_height, "sheetWidth":sheet_width, "upperMargin":upper_margin,
@@ -47,7 +50,8 @@ def main(
 
 	componentBuilderArgs = {
 		"unitName":units, "tolerance":tolerance, "bandCount":bands, "condense":condense,
-		"showColorCodes":color_codes, "showTolerance":show_tolerance
+		"showColorCodes":color_codes, "showTolerance":show_tolerance, "voltage":voltage,
+		"temperature":temperature
 	}
 
 	sheetBuilderArgs = {

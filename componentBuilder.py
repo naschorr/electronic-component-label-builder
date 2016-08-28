@@ -10,6 +10,8 @@ UNITS = 'Ω'
 CONDENSE_VALUE = True
 SHOW_COLOR_CODES = True
 SHOW_TOLERANCE = True
+VOLTAGE = 100	# Voltage limit. See setter property for more details
+TEMPERATURE = 70	# Operating temperature range, from -55c to 70c in this case
 
 ## Prefixes
 METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
@@ -35,6 +37,8 @@ class Component:
 		self.condense = helpers.setBoolKwarg("condense", kwargs, CONDENSE_VALUE)
 		self.showColorCodes = helpers.setBoolKwarg("showColorCodes", kwargs, SHOW_COLOR_CODES)
 		self.showTolerance = helpers.setBoolKwarg("showTolerance", kwargs, SHOW_TOLERANCE)
+		self.voltage = helpers.kwargExists("voltage", kwargs) or VOLTAGE
+		self.temperature = helpers.kwargExists("temperature", kwargs) or TEMPERATURE
 
 		self._labels = []
 
@@ -106,7 +110,30 @@ class Component:
 	@showTolerance.setter
 	def showTolerance(self, value):
 		self._showTolerance = value
-	
+
+	@property
+	def voltage(self):
+		return self._voltage
+
+	@voltage.setter
+	def voltage(self, value):
+		## Voltages checked against: http://www.pmel.org/Handbook/HBpage26.htm
+		voltages = [v for v in range(100, 1001, 100)]	# 1001 is just to make the end inclusive.
+		voltages.append(2000)
+
+		self._voltage = helpers.testForRange(value, voltages, valueName="voltage")
+
+	@property
+	def temperature(self):
+		return self._temperature
+
+	@temperature.setter
+	def temperature(self, value):
+		## Temperatures checked against: https://en.wikipedia.org/wiki/Electronic_color_code#Capacitor_color-coding
+		temperatures = [70, 85, 125, 150]
+
+		self._temperature = helpers.testForRange(value, temperatures, valueName="temperature")
+
 	@property
 	def labels(self):
 		return self._labels
@@ -187,7 +214,7 @@ class Component:
 		## Make sure that there is a unitname to append
 		if(len(self.unitName) > 0):
 			## Pluralize the name if it's not singular, and doesn't contain special characters
-			if(float(value) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
+			if(float(value) > 1 and len(self.unitName) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
 				name += " " + inflect.engine().plural(self.unitName)
 			else:
 				name += " " + self.unitName
@@ -195,7 +222,7 @@ class Component:
 		return name
 
 
-	def buildColorCode(self, value, leadingDigits):
+	def buildLabelColorCode(self, value, leadingDigits):
 		## Ppopulate the first 3 indecies with the appropriate colors
 		bands = self.bandCount*["black"]
 		for counter, digit in enumerate(str(leadingDigits)):
@@ -213,7 +240,7 @@ class Component:
 			print("KeyError", ke, "Ignoring bands for this label.")
 			bands = None
 
-		if(self.showTolerance is True):
+		if(self.showTolerance):
 			## Populate the tolerance band with its color
 			bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
 		else:
@@ -227,8 +254,8 @@ class Component:
 
 		name = self.buildLabelName(data)
 
-		if(self.showColorCodes is True):
-			bands = self.buildColorCode(data, leadingDigits)
+		if(self.showColorCodes):
+			bands = self.buildLabelColorCode(data, leadingDigits)
 		else:
 			bands = None
 
