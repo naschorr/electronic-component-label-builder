@@ -188,7 +188,7 @@ class Component:
 		if(len(self.unitName) > 0):
 			## Pluralize the name if it's not singular, and doesn't contain special characters
 			if(float(value) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
-				name += " " + p.plural(self.unitName)
+				name += " " + inflect.engine().plural(self.unitName)
 			else:
 				name += " " + self.unitName
 
@@ -223,7 +223,6 @@ class Component:
 
 
 	def buildComponentLabel(self, data):
-		p = inflect.engine()
 		leadingDigits = self.getLeadingDigits(data)
 
 		name = self.buildLabelName(data)
