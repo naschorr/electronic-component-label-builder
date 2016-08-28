@@ -177,50 +177,59 @@ class Component:
 		return int(leadingDigits)
 
 
-	def buildComponentLabel(self, data):
-		p = inflect.engine()
-		leadingDigits = self.getLeadingDigits(data)
-
+	def buildLabelName(self, value):
 		## Condense the name (ex. 10000 -> 10k) if the user has allowed it
 		if(self.condense):
-			name = self.condenseValue(data)
+			name = self.condenseValue(value)
 		else:
-			name = data
-
-		data = float(data)
+			name = value
 
 		## Make sure that there is a unitname to append
 		if(len(self.unitName) > 0):
 			## Pluralize the name if it's not singular, and doesn't contain special characters
-			if(float(data) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
+			if(float(value) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
 				name += " " + p.plural(self.unitName)
 			else:
 				name += " " + self.unitName
 
+		return name
+
+
+	def buildColorCode(self, value, leadingDigits):
+		## Ppopulate the first 3 indecies with the appropriate colors
+		bands = self.bandCount*["black"]
+		for counter, digit in enumerate(str(leadingDigits)):
+			bands[counter] = COLORS[int(digit)]
+
+		## Populate the multiplier band with its color
+		multiplierIndex = round(float(value) / leadingDigits, 2)
+
+		try:
+			if(self.bandCount == 4):
+				bands[-2] = MULTIPLIERS[multiplierIndex]
+			elif(self.bandCount == 5):
+				bands[-2] = MULTIPLIERS[multiplierIndex]
+		except KeyError as ke:
+			print("KeyError", ke, "Ignoring bands for this label.")
+			bands = None
+
+		if(self.showTolerance is True):
+			## Populate the tolerance band with its color
+			bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
+		else:
+			del bands[-1]
+
+		return bands
+
+
+	def buildComponentLabel(self, data):
+		p = inflect.engine()
+		leadingDigits = self.getLeadingDigits(data)
+
+		name = self.buildLabelName(data)
+
 		if(self.showColorCodes is True):
-			## Ppopulate the first 3 indecies with the appropriate colors
-			bands = self.bandCount*["black"]
-			for counter, digit in enumerate(str(leadingDigits)):
-				bands[counter] = COLORS[int(digit)]
-
-			## Populate the multiplier band with its color
-			multiplierIndex = round(data / leadingDigits, 2)
-			
-			try:
-				if(self.bandCount == 4):
-					bands[-2] = MULTIPLIERS[multiplierIndex]
-				elif(self.bandCount == 5):
-					bands[-2] = MULTIPLIERS[multiplierIndex]
-			except KeyError as ke:
-				print("KeyError", ke, "Ignoring bands for this label.")
-				bands = None
-
-			if(self.showTolerance is True):
-				## Populate the tolerance band with its color
-				bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
-			else:
-				del bands[-1]
-
+			bands = self.buildColorCode(data, leadingDigits)
 		else:
 			bands = None
 
