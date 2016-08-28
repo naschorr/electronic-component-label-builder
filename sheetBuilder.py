@@ -1,6 +1,8 @@
 from math import ceil
 from PIL import Image, ImageDraw, ImageFont
 
+import helpers
+
 ## Defaults
 OUTPUT_TYPE = ".png"
 FONT = "resources/Arial.ttf"
@@ -15,32 +17,27 @@ DEBUG = False
 
 class SheetBuilder:
 	def __init__(self, sheetConfig, labels, **kwargs):
-
-		def kwargExists(kwarg):
-			if kwarg in kwargs:
-				if(kwargs[kwarg] is not None):
-					return kwargs[kwarg]
-			return None
-
 		## Load scale first so that it can be used to modify other incoming values
-		self.scale = kwargExists("scale") or SCALE
+		self.scale = helpers.kwargExists("scale", kwargs) or SCALE
 		
 		self.sheetConfig = sheetConfig
 		self.labels = labels
 
-		self.outputType = kwargExists("outputType") or OUTPUT_TYPE
-		self.font = kwargExists("font") or FONT
-		self.fontSize = kwargExists("fontSize") or FONT_SIZE
-		self.boxSize = kwargExists("boxSize") or BOX_SIZE
-		self.boxSpacerWidth = kwargExists("boxSpacerWidth") or BOX_SPACER_WIDTH
-		self.labelsPerSticker = kwargExists("labelsPerSticker") or LABELS_PER_STICKER
-		labelTextOffsetState = kwargExists("labelTextOffset")
+		self.outputType = helpers.kwargExists("outputType", kwargs) or OUTPUT_TYPE
+		self.font = helpers.kwargExists("font", kwargs) or FONT
+		self.fontSize = helpers.kwargExists("fontSize", kwargs) or FONT_SIZE
+		self.boxSize = helpers.kwargExists("boxSize", kwargs) or BOX_SIZE
+		self.boxSpacerWidth = helpers.kwargExists("boxSpacerWidth", kwargs) or BOX_SPACER_WIDTH
+		self.labelsPerSticker = helpers.kwargExists("labelsPerSticker", kwargs) or LABELS_PER_STICKER
+
+		labelTextOffsetState = helpers.kwargExists("labelTextOffset", kwargs)
 		self.labelTextOffset = labelTextOffsetState if labelTextOffsetState is not None else LABEL_TEXT_OFFSET
-		labelColorCodeOffsetState = kwargExists("labelColorCodeOffset")
+
+		labelColorCodeOffsetState = helpers.kwargExists("labelColorCodeOffset", kwargs)
 		self.labelColorCodeOffset = labelColorCodeOffsetState if labelColorCodeOffsetState is not None else LABEL_COLORCODE_OFFSET
+
 		## Handle issue bool kwargs can be set to True or False, and to prefer that over the default setting.
-		debugState = kwargExists("debug")
-		self.debug = debugState if debugState is True or debugState is False else DEBUG
+		self.debug = helpers.setBoolKwarg("debug", kwargs, DEBUG)
 
 		self.drawSheet()
 
@@ -218,6 +215,7 @@ class SheetBuilder:
 
 						if(self.labels[0].colorCode is None):
 							textYOffset += sc.labelHeight/4
+							## Just draw the label's text, but centered
 							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
 						else:
 							colorCodeYOffset = topLeftY + 3*((sc.labelHeight)/4) + self.labelColorCodeOffset

@@ -1,3 +1,5 @@
+import helpers
+
 class Data:
 	def __init__(self, pathToData):
 		self.pathToData = pathToData
@@ -23,11 +25,8 @@ class Data:
 
 	## Methods
 
-	def formatString(self, string):
-		return string.lower().rstrip().lstrip()
-
 	def getDataLinesFromFile(self, file):
 		data = []
 		for line in file:	# File opened via click
-			data.append(self.formatString(line))
+			data.append(helpers.formatString(line))
 		return data

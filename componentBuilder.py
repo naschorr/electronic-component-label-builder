@@ -1,12 +1,15 @@
 import inflect
+
 import label
+import helpers
 
 ## Defaults
 TOLERANCE = 5.0
 BAND_COUNT = 5 	# Only supports 4 and 5 band codes so far
-UNITS = ""
+UNITS = 'Ω'
 CONDENSE_VALUE = True
 SHOW_COLOR_CODES = True
+SHOW_TOLERANCE = True
 
 ## Prefixes
 METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
@@ -25,22 +28,13 @@ CAPACITOR_ID = ['farad', 'capacit']
 
 class Component:
 	def __init__(self, dataObj, **kwargs):
-
-		def kwargExists(kwarg):
-			if kwarg in kwargs:
-				if(kwargs[kwarg] is not None):
-					return kwargs[kwarg]
-			return None
-
 		self.dataObj = dataObj
-		self.unitName = kwargExists("unitName") or UNITS
-		self.tolerance = kwargExists("tolerance") or TOLERANCE
-		self.bandCount = kwargExists("bandCount") or BAND_COUNT
-		## Handle issue bool kwargs can be set to True or False, and to prefer that over the default setting.
-		condenseState = kwargExists("condense")
-		self.condense = condenseState if condenseState is True or condenseState is False else CONDENSE_VALUE
-		colorCodeState = kwargExists("showColorCodes")
-		self.showColorCodes = colorCodeState if colorCodeState is True or colorCodeState is False else SHOW_COLOR_CODES
+		self.unitName = helpers.kwargExists("unitName", kwargs) or UNITS
+		self.tolerance = helpers.kwargExists("tolerance", kwargs) or TOLERANCE
+		self.bandCount = helpers.kwargExists("bandCount", kwargs) or BAND_COUNT
+		self.condense = helpers.setBoolKwarg("condense", kwargs, CONDENSE_VALUE)
+		self.showColorCodes = helpers.setBoolKwarg("showColorCodes", kwargs, SHOW_COLOR_CODES)
+		self.showTolerance = helpers.setBoolKwarg("showTolerance", kwargs, SHOW_TOLERANCE)
 
 		self._labels = []
 
@@ -106,6 +100,14 @@ class Component:
 		self._showColorCodes = value
 	
 	@property
+	def showTolerance(self):
+		return self._showTolerance
+
+	@showTolerance.setter
+	def showTolerance(self, value):
+		self._showTolerance = value
+	
+	@property
 	def labels(self):
 		return self._labels
 
@@ -152,11 +154,14 @@ class Component:
 		return str(value) + METRIC_PREFIXES[count + int(len(METRIC_PREFIXES)/2)]
 
 
-	def getLeadingDigits(self, value, numDigits=3):
+	def getLeadingDigits(self, value, numDigits=None):
+		numDigits = numDigits if numDigits else self.bandCount-2
+
 		stringValue = str(value)
 		leadingDigits = ""
 		digitCounter = 0
 		stringIndex = 0
+		## Get the first (3) numbers in the string, ignoring any other characters
 		while(digitCounter < numDigits and stringIndex < len(stringValue)):
 			thisChar = stringValue[stringIndex]
 			if(thisChar is '.' or (thisChar is '0' and digitCounter is 0)):
@@ -165,6 +170,7 @@ class Component:
 			leadingDigits += thisChar
 			stringIndex += 1
 
+		## If (3) digits aren't found, pad it out with 0s
 		while(len(leadingDigits) < numDigits):
 			leadingDigits += '0'
 
@@ -197,20 +203,23 @@ class Component:
 			for counter, digit in enumerate(str(leadingDigits)):
 				bands[counter] = COLORS[int(digit)]
 
-			## Populate the tolerance band with its color
-			bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
-
 			## Populate the multiplier band with its color
 			multiplierIndex = round(data / leadingDigits, 2)
-
+			
 			try:
 				if(self.bandCount == 4):
-					bands[-2] = MULTIPLIERS[multiplierIndex*10]
+					bands[-2] = MULTIPLIERS[multiplierIndex]
 				elif(self.bandCount == 5):
 					bands[-2] = MULTIPLIERS[multiplierIndex]
 			except KeyError as ke:
 				print("KeyError", ke, "Ignoring bands for this label.")
 				bands = None
+
+			if(self.showTolerance is True):
+				## Populate the tolerance band with its color
+				bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
+			else:
+				del bands[-1]
 
 		else:
 			bands = None

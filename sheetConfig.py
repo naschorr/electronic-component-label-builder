@@ -1,3 +1,5 @@
+import helpers
+
 ## Default sheet dimensions and layout
 HEIGHT = 11
 WIDTH = 8.5
@@ -11,22 +13,15 @@ COLUMNS = 2
 
 class SheetConfig:
 	def __init__(self, **kwargs):
-
-		def kwargExists(kwarg):
-			if kwarg in kwargs:
-				if(kwargs[kwarg] is not None):
-					return kwargs[kwarg]
-			return None
-
-		self.sheetHeight = kwargExists("sheetHeight") or HEIGHT
-		self.sheetWidth = kwargExists("sheetWidth") or WIDTH
-		self.upperMargin = kwargExists("upperMargin") or UPPER_MARGIN
-		self.leftMargin = kwargExists("leftMargin") or LEFT_MARGIN
-		self.middlePadding = kwargExists("middlePadding") or MIDDLE_PADDING
-		self.labelHeight = kwargExists("labelHeight") or LABEL_HEIGHT
-		self.labelWidth = kwargExists("labelWidth") or LABEL_WIDTH
-		self.rows = kwargExists("rows") or ROWS
-		self.cols = kwargExists("columns") or COLUMNS
+		self.sheetHeight = helpers.kwargExists("sheetHeight", kwargs) or HEIGHT
+		self.sheetWidth = helpers.kwargExists("sheetWidth", kwargs) or WIDTH
+		self.upperMargin = helpers.kwargExists("upperMargin", kwargs) or UPPER_MARGIN
+		self.leftMargin = helpers.kwargExists("leftMargin", kwargs) or LEFT_MARGIN
+		self.middlePadding = helpers.kwargExists("middlePadding", kwargs) or MIDDLE_PADDING
+		self.labelHeight = helpers.kwargExists("labelHeight", kwargs) or LABEL_HEIGHT
+		self.labelWidth = helpers.kwargExists("labelWidth", kwargs) or LABEL_WIDTH
+		self.rows = helpers.kwargExists("rows", kwargs) or ROWS
+		self.cols = helpers.kwargExists("columns", kwargs) or COLUMNS
 
 	## Properties
 
