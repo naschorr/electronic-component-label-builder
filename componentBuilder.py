@@ -115,8 +115,18 @@ class Component:
 
 	## Methods
 
+	def getFractionalDigitCount(self, value):
+		count = 0
+		while(value * 10 < 1):
+			value *= 10
+			count += 1
+
+		return count
+
+
 	def condenseValue(self, value):
 		value = float(value)
+		fractionalDigits = self.getFractionalDigitCount(value)
 
 		count = 0
 		## Count how many thousands are in a given value, as well as divide the 
@@ -130,6 +140,7 @@ class Component:
 			while(value * 1000 <= 1):
 				count -= 1
 				value *= 1000
+				value = round(value, fractionalDigits - count * 3)
 
 		## If the floating point is meaningless, then remove it and the last zero.
 		if(value == int(value)):
@@ -141,19 +152,36 @@ class Component:
 		return str(value) + METRIC_PREFIXES[count + int(len(METRIC_PREFIXES)/2)]
 
 
+	def getLeadingDigits(self, value, numDigits=3):
+		stringValue = str(value)
+		leadingDigits = ""
+		digitCounter = 0
+		stringIndex = 0
+		while(digitCounter < numDigits and stringIndex < len(stringValue)):
+			thisChar = stringValue[stringIndex]
+			if(thisChar is '.' or (thisChar is '0' and digitCounter is 0)):
+				stringIndex += 1
+				continue
+			leadingDigits += thisChar
+			stringIndex += 1
+
+		while(len(leadingDigits) < numDigits):
+			leadingDigits += '0'
+
+		return int(leadingDigits)
+
+
 	def buildComponentLabel(self, data):
 		p = inflect.engine()
-		integer = int(float(data))
-		fractional = round(float(data) % 1, 1)
-		stringData = str(integer)[:3]
-		if(fractional != 0.0):
-			stringData += str(fractional)[2:]
+		leadingDigits = self.getLeadingDigits(data)
 
 		## Condense the name (ex. 10000 -> 10k) if the user has allowed it
 		if(self.condense):
 			name = self.condenseValue(data)
 		else:
 			name = data
+
+		data = float(data)
 
 		## Make sure that there is a unitname to append
 		if(len(self.unitName) > 0):
@@ -164,27 +192,28 @@ class Component:
 				name += " " + self.unitName
 
 		if(self.showColorCodes is True):
-			## Pad the string of numbers out to 3 zeroes
-			while(len(stringData) < 3):
-				stringData += "0"
-
 			## Ppopulate the first 3 indecies with the appropriate colors
 			bands = self.bandCount*["black"]
-			for counter, datum in enumerate(stringData):
-				bands[counter] = COLORS[int(datum)]
+			for counter, digit in enumerate(str(leadingDigits)):
+				bands[counter] = COLORS[int(digit)]
 
 			## Populate the tolerance band with its color
 			bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
 
 			## Populate the multiplier band with its color
-			multiplierIndex = round((integer + fractional) / int(stringData), 2)
-			if(self.bandCount == 4):
-				bands[-2] = MULTIPLIERS[multiplierIndex*10]
-			elif(self.bandCount == 5):
-				bands[-2] = MULTIPLIERS[multiplierIndex]
+			multiplierIndex = round(data / leadingDigits, 2)
 
-			return name, bands
+			try:
+				if(self.bandCount == 4):
+					bands[-2] = MULTIPLIERS[multiplierIndex*10]
+				elif(self.bandCount == 5):
+					bands[-2] = MULTIPLIERS[multiplierIndex]
+			except KeyError as ke:
+				print("KeyError", ke, "Ignoring bands for this label.")
+				bands = None
 
 		else:
-			return name, None
+			bands = None
+
+		return name, bands
 			

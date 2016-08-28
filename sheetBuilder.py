@@ -215,7 +215,7 @@ class SheetBuilder:
 						labelXCenter = topLeftX + labelXPositionSection + labelCounter*(labelXPositionSection*2)
 
 						textYOffset = topLeftY + sc.labelHeight/4 - textHeight/2 + self.labelTextOffset
-						
+
 						if(self.labels[0].colorCode is None):
 							textYOffset += sc.labelHeight/4
 							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
@@ -225,7 +225,7 @@ class SheetBuilder:
 							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
 							self.drawColorCode(draw, self.labels[0].colorCode, labelXCenter, colorCodeYOffset)
 
-						## Delete the just recently drawn label
+						## Delete the just recently drawn label from the array
 						del self.labels[0]
 						labelCounter += 1
 					colCounter += 1
