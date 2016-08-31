@@ -78,14 +78,8 @@ class Component:
 	
 	@bandCount.setter
 	def bandCount(self, value):
-		if(value < 4):
-			print("Supplied bandCount of", value, "is too low. Defaulting to 4.")
-			self._bandCount = 4
-		elif(value > 5):
-			print("Supplied bandCount of", value, "is too high. Defaulting to 5.")
-			self._bandCount = 5
-		else:
-			self._bandCount = value
+		validBands = [4,5]
+		self._bandCount = helpers.testForRange(value, validBands, valueName="bandCount")
 
 	@property
 	def condense(self):
@@ -118,9 +112,8 @@ class Component:
 	@voltage.setter
 	def voltage(self, value):
 		## Voltages checked against: http://www.pmel.org/Handbook/HBpage26.htm
-		voltages = [v for v in range(100, 1001, 100)]	# 1001 is just to make the end inclusive.
+		voltages = [v for v in helpers.incRange(100, 1000, 100)]
 		voltages.append(2000)
-
 		self._voltage = helpers.testForRange(value, voltages, valueName="voltage")
 
 	@property
@@ -131,7 +124,6 @@ class Component:
 	def temperature(self, value):
 		## Temperatures checked against: https://en.wikipedia.org/wiki/Electronic_color_code#Capacitor_color-coding
 		temperatures = [70, 85, 125, 150]
-
 		self._temperature = helpers.testForRange(value, temperatures, valueName="temperature")
 
 	@property
