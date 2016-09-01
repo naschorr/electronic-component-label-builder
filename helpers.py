@@ -34,11 +34,15 @@ def testForRange(value, valueList, **kwargs):
 	if(value in valueList):
 		return value
 	else:
+		## Go ahead and sort the incoming list to prevent it from defaulting to a too high value.
+		valueList = sorted(valueList)
+
 		index = 0
 		rangeFound = False
 		thisIndex = None
 		outputString = "Supplied " + (kwargExists("valueName", kwargs) or 'value') + " of " + str(value)
 		outputValue = None
+		## Tries to find the smallest number in the list that's bigger than the test value.
 		while(index < len(valueList) and not rangeFound):
 			thisIndex = valueList[index]
 			if(value < thisIndex):
@@ -46,6 +50,8 @@ def testForRange(value, valueList, **kwargs):
 				outputValue = thisIndex
 				rangeFound = True
 			index += 1
+
+		## If a number wasn't found, then default to the largest number in the list.
 		if(not rangeFound):
 			thisIndex = valueList[-1]
 			outputString += " is greater than " + str(thisIndex) + ". Defaulting to " + str(thisIndex) + "."
@@ -53,3 +59,25 @@ def testForRange(value, valueList, **kwargs):
 
 		print(outputString)
 		return outputValue
+
+## Meant to be used as a decorator
+def isPositive(func):
+	def inner(*args):
+		self = args[0]
+		value = args[1]
+		if(value is not None):
+			if(value > 0):
+				return func(self, value)
+		return func(self, None)
+	return inner
+
+## Meant to be used as a decorator
+def isNotNegative(func):
+	def inner(*args):
+		self = args[0]
+		value = args[1]
+		if(value is not None):
+			if(value >= 0):
+				return func(self, value)
+		return func(self, None)
+	return inner

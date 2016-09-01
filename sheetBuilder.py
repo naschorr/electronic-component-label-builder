@@ -18,25 +18,19 @@ DEBUG = False
 class SheetBuilder:
 	def __init__(self, sheetConfig, labels, **kwargs):
 		## Load scale first so that it can be used to modify other incoming values
-		self.scale = helpers.kwargExists("scale", kwargs) or SCALE
+		self.scale = helpers.kwargExists("scale", kwargs)
 		
 		self.sheetConfig = sheetConfig
 		self.labels = labels
 
-		self.outputType = helpers.kwargExists("outputType", kwargs) or OUTPUT_TYPE
-		self.font = helpers.kwargExists("font", kwargs) or FONT
-		self.fontSize = helpers.kwargExists("fontSize", kwargs) or FONT_SIZE
-		self.boxSize = helpers.kwargExists("boxSize", kwargs) or BOX_SIZE
-		self.boxSpacerWidth = helpers.kwargExists("boxSpacerWidth", kwargs) or BOX_SPACER_WIDTH
-		self.labelsPerSticker = helpers.kwargExists("labelsPerSticker", kwargs) or LABELS_PER_STICKER
-
-		labelTextOffsetState = helpers.kwargExists("labelTextOffset", kwargs)
-		self.labelTextOffset = labelTextOffsetState if labelTextOffsetState is not None else LABEL_TEXT_OFFSET
-
-		labelColorCodeOffsetState = helpers.kwargExists("labelColorCodeOffset", kwargs)
-		self.labelColorCodeOffset = labelColorCodeOffsetState if labelColorCodeOffsetState is not None else LABEL_COLORCODE_OFFSET
-
-		## Handle issue bool kwargs can be set to True or False, and to prefer that over the default setting.
+		self.outputType = helpers.kwargExists("outputType", kwargs)
+		self.font = helpers.kwargExists("font", kwargs)
+		self.fontSize = helpers.kwargExists("fontSize", kwargs)
+		self.boxSize = helpers.kwargExists("boxSize", kwargs)
+		self.boxSpacerWidth = helpers.kwargExists("boxSpacerWidth", kwargs)
+		self.labelsPerSticker = helpers.kwargExists("labelsPerSticker", kwargs)
+		self.labelTextOffset = helpers.kwargExists("labelTextOffset", kwargs)
+		self.labelColorCodeOffset = helpers.kwargExists("labelColorCodeOffset", kwargs)
 		self.debug = helpers.setBoolKwarg("debug", kwargs, DEBUG)
 
 		self.drawSheet()
@@ -48,8 +42,9 @@ class SheetBuilder:
 		return self._scale
 
 	@scale.setter
+	@helpers.isPositive
 	def scale(self, value):
-		self._scale = value
+		self._scale = value or SCALE
 
 	@property
 	def sheetConfig(self):
@@ -81,7 +76,7 @@ class SheetBuilder:
 	
 	@outputType.setter
 	def outputType(self, value):
-		self._outputType = value
+		self._outputType = value or OUTPUT_TYPE
 
 	@property
 	def font(self):
@@ -89,55 +84,61 @@ class SheetBuilder:
 
 	@font.setter
 	def font(self, value):
-		self._font = value
+		self._font = value or FONT
 
 	@property
 	def fontSize(self):
 		return self._fontSize
 
 	@fontSize.setter
+	@helpers.isPositive
 	def fontSize(self, value):
-		self._fontSize = value
+		self._fontSize = value or FONT_SIZE
 
 	@property
 	def boxSize(self):
 		return self._boxSize
 
 	@boxSize.setter
+	@helpers.isPositive
 	def boxSize(self, value):
-		self._boxSize = value * self.scale
+		self._boxSize = (value or BOX_SIZE) * self.scale
 
 	@property
 	def boxSpacerWidth(self):
 		return self._boxSpacerWidth
 
 	@boxSpacerWidth.setter
+	@helpers.isNotNegative
 	def boxSpacerWidth(self, value):
-		self._boxSpacerWidth = value * self.scale
+		self._boxSpacerWidth = (value or BOX_SPACER_WIDTH) * self.scale
 
 	@property
 	def labelsPerSticker(self):
 		return self._labelsPerSticker
 
 	@labelsPerSticker.setter
+	@helpers.isPositive
 	def labelsPerSticker(self, value):
-		self._labelsPerSticker = value
+		self._labelsPerSticker = value or LABELS_PER_STICKER
 
 	@property
 	def labelTextOffset(self):
 		return self._labelTextOffset
 
 	@labelTextOffset.setter
+	@helpers.isNotNegative
 	def labelTextOffset(self, value):
-		self._labelTextOffset = value * self.scale
+		self._labelTextOffset = (value or LABEL_TEXT_OFFSET) * self.scale
 	
 	@property
 	def labelColorCodeOffset(self):
 		return self._labelColorCodeOffset
 
 	@labelColorCodeOffset.setter
+	@helpers.isNotNegative
 	def labelColorCodeOffset(self, value):
-		self._labelColorCodeOffset = value * self.scale
+		self._labelColorCodeOffset = (value or LABEL_COLORCODE_OFFSET) * self.scale
 
 	@property
 	def debug(self):
@@ -145,7 +146,7 @@ class SheetBuilder:
 
 	@debug.setter
 	def debug(self, value):
-		self._debug = value
+		self._debug = value or DEBUG
 	
 	## Methods
 

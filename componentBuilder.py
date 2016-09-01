@@ -31,14 +31,14 @@ CAPACITOR_ID = ['farad', 'capacit']
 class Component:
 	def __init__(self, dataObj, **kwargs):
 		self.dataObj = dataObj
-		self.unitName = helpers.kwargExists("unitName", kwargs) or UNITS
-		self.tolerance = helpers.kwargExists("tolerance", kwargs) or TOLERANCE
-		self.bandCount = helpers.kwargExists("bandCount", kwargs) or BAND_COUNT
+		self.unitName = helpers.kwargExists("unitName", kwargs)
+		self.tolerance = helpers.kwargExists("tolerance", kwargs)
+		self.bandCount = helpers.kwargExists("bandCount", kwargs)
 		self.condense = helpers.setBoolKwarg("condense", kwargs, CONDENSE_VALUE)
 		self.showColorCodes = helpers.setBoolKwarg("showColorCodes", kwargs, SHOW_COLOR_CODES)
 		self.showTolerance = helpers.setBoolKwarg("showTolerance", kwargs, SHOW_TOLERANCE)
-		self.voltage = helpers.kwargExists("voltage", kwargs) or VOLTAGE
-		self.temperature = helpers.kwargExists("temperature", kwargs) or TEMPERATURE
+		self.voltage = helpers.kwargExists("voltage", kwargs)
+		self.temperature = helpers.kwargExists("temperature", kwargs)
 
 		self._labels = []
 
@@ -62,24 +62,33 @@ class Component:
 	
 	@unitName.setter
 	def unitName(self, value):
-		self._unitName = value
+		self._unitName = value or UNITS
 
 	@property
 	def tolerance(self):
 		return self._tolerance
 	
 	@tolerance.setter
+	@helpers.isPositive
 	def tolerance(self, value):
-		self._tolerance = value
+		if(value is not None):
+			validTolerances = [key for key in RESISTOR_TOLS]
+			self._tolerance = helpers.testForRange(value, validTolerances, valueName="tolerance")
+		else:
+			self._tolerance = TOLERANCE
 
 	@property
 	def bandCount(self):
 		return self._bandCount
 	
 	@bandCount.setter
+	@helpers.isPositive
 	def bandCount(self, value):
-		validBands = [4,5]
-		self._bandCount = helpers.testForRange(value, validBands, valueName="bandCount")
+		if(value is not None):
+			validBands = [4,5]
+			self._bandCount = helpers.testForRange(value, validBands, valueName="bandCount")
+		else:
+			self._bandCount = BAND_COUNT
 
 	@property
 	def condense(self):
@@ -87,7 +96,7 @@ class Component:
 
 	@condense.setter
 	def condense(self, value):
-		self._condense = value
+		self._condense = value or CONDENSE_VALUE
 
 	@property
 	def showColorCodes(self):
@@ -95,7 +104,7 @@ class Component:
 	
 	@showColorCodes.setter
 	def showColorCodes(self, value):
-		self._showColorCodes = value
+		self._showColorCodes = value or SHOW_COLOR_CODES
 	
 	@property
 	def showTolerance(self):
@@ -103,28 +112,36 @@ class Component:
 
 	@showTolerance.setter
 	def showTolerance(self, value):
-		self._showTolerance = value
+		self._showTolerance = value or SHOW_TOLERANCE
 
 	@property
 	def voltage(self):
 		return self._voltage
 
 	@voltage.setter
+	@helpers.isPositive
 	def voltage(self, value):
-		## Voltages checked against: http://www.pmel.org/Handbook/HBpage26.htm
-		voltages = [v for v in helpers.incRange(100, 1000, 100)]
-		voltages.append(2000)
-		self._voltage = helpers.testForRange(value, voltages, valueName="voltage")
+		if(value is not None):
+			## Voltages checked against: http://www.pmel.org/Handbook/HBpage26.htm
+			voltages = [v for v in helpers.incRange(100, 1000, 100)]
+			voltages.append(2000)
+			self._voltage = helpers.testForRange(value, voltages, valueName="voltage")
+		else:
+			self._voltage = VOLTAGE
 
 	@property
 	def temperature(self):
 		return self._temperature
 
 	@temperature.setter
+	@helpers.isPositive
 	def temperature(self, value):
-		## Temperatures checked against: https://en.wikipedia.org/wiki/Electronic_color_code#Capacitor_color-coding
-		temperatures = [70, 85, 125, 150]
-		self._temperature = helpers.testForRange(value, temperatures, valueName="temperature")
+		if(value is not None):
+			## Temperatures checked against: https://en.wikipedia.org/wiki/Electronic_color_code#Capacitor_color-coding
+			temperatures = [70, 85, 125, 150]
+			self._temperature = helpers.testForRange(value, temperatures, valueName="temperature")
+		else:
+			self._temperature = TEMPERATURE
 
 	@property
 	def labels(self):
