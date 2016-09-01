@@ -42,6 +42,7 @@ class SheetBuilder:
 		return self._scale
 
 	@scale.setter
+	@helpers.isInt
 	@helpers.isPositive
 	def scale(self, value):
 		self._scale = value or SCALE
@@ -91,6 +92,7 @@ class SheetBuilder:
 		return self._fontSize
 
 	@fontSize.setter
+	@helpers.isInt
 	@helpers.isPositive
 	def fontSize(self, value):
 		self._fontSize = value or FONT_SIZE
@@ -100,6 +102,7 @@ class SheetBuilder:
 		return self._boxSize
 
 	@boxSize.setter
+	@helpers.isFloat
 	@helpers.isPositive
 	def boxSize(self, value):
 		self._boxSize = (value or BOX_SIZE) * self.scale
@@ -109,6 +112,7 @@ class SheetBuilder:
 		return self._boxSpacerWidth
 
 	@boxSpacerWidth.setter
+	@helpers.isFloat
 	@helpers.isNotNegative
 	def boxSpacerWidth(self, value):
 		self._boxSpacerWidth = (value or BOX_SPACER_WIDTH) * self.scale
@@ -118,6 +122,7 @@ class SheetBuilder:
 		return self._labelsPerSticker
 
 	@labelsPerSticker.setter
+	@helpers.isInt
 	@helpers.isPositive
 	def labelsPerSticker(self, value):
 		self._labelsPerSticker = value or LABELS_PER_STICKER
@@ -127,6 +132,7 @@ class SheetBuilder:
 		return self._labelTextOffset
 
 	@labelTextOffset.setter
+	@helpers.isFloat
 	@helpers.isNotNegative
 	def labelTextOffset(self, value):
 		self._labelTextOffset = (value or LABEL_TEXT_OFFSET) * self.scale
@@ -136,6 +142,7 @@ class SheetBuilder:
 		return self._labelColorCodeOffset
 
 	@labelColorCodeOffset.setter
+	@helpers.isFloat
 	@helpers.isNotNegative
 	def labelColorCodeOffset(self, value):
 		self._labelColorCodeOffset = (value or LABEL_COLORCODE_OFFSET) * self.scale
@@ -145,6 +152,7 @@ class SheetBuilder:
 		return self._debug
 
 	@debug.setter
+	@helpers.isBool
 	def debug(self, value):
 		self._debug = value or DEBUG
 	

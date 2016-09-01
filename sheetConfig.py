@@ -30,8 +30,8 @@ class SheetConfig:
 		return self._sheetHeight
 	
 	@sheetHeight.setter
+	@helpers.isFloat
 	@helpers.isPositive
-	@helpers.isNotNegative
 	def sheetHeight(self, value):
 		self._sheetHeight = value or HEIGHT
 
@@ -40,6 +40,7 @@ class SheetConfig:
 		return self._sheetWidth
 	
 	@sheetWidth.setter
+	@helpers.isFloat
 	@helpers.isPositive
 	def sheetWidth(self, value):
 		self._sheetWidth = value or WIDTH
@@ -49,6 +50,7 @@ class SheetConfig:
 		return self._upperMargin
 	
 	@upperMargin.setter
+	@helpers.isFloat
 	@helpers.isNotNegative
 	def upperMargin(self, value):
 		self._upperMargin = value or UPPER_MARGIN
@@ -58,6 +60,7 @@ class SheetConfig:
 		return self._leftMargin
 
 	@leftMargin.setter
+	@helpers.isFloat
 	@helpers.isNotNegative
 	def leftMargin(self, value):
 		self._leftMargin = value or LEFT_MARGIN
@@ -67,6 +70,7 @@ class SheetConfig:
 		return self._middlePadding
 	
 	@middlePadding.setter
+	@helpers.isFloat
 	@helpers.isNotNegative
 	def middlePadding(self, value):
 		self._middlePadding = value or MIDDLE_PADDING
@@ -76,6 +80,7 @@ class SheetConfig:
 		return self._labelHeight
 	
 	@labelHeight.setter
+	@helpers.isFloat
 	@helpers.isPositive
 	def labelHeight(self, value):
 		self._labelHeight = value or LABEL_HEIGHT
@@ -85,6 +90,7 @@ class SheetConfig:
 		return self._labelWidth
 
 	@labelWidth.setter
+	@helpers.isFloat
 	@helpers.isPositive
 	def labelWidth(self, value):
 		self._labelWidth = value or LABEL_WIDTH
@@ -94,6 +100,7 @@ class SheetConfig:
 		return self._rows
 
 	@rows.setter
+	@helpers.isInt
 	@helpers.isPositive
 	def rows(self, value):
 		self._rows = value or ROWS
@@ -103,6 +110,7 @@ class SheetConfig:
 		return self._cols
 		
 	@cols.setter
+	@helpers.isInt
 	@helpers.isPositive
 	def cols(self, value):
 		self._cols = value or COLUMNS

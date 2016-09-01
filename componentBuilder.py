@@ -69,6 +69,7 @@ class Component:
 		return self._tolerance
 	
 	@tolerance.setter
+	@helpers.isFloat
 	@helpers.isPositive
 	def tolerance(self, value):
 		if(value is not None):
@@ -82,6 +83,7 @@ class Component:
 		return self._bandCount
 	
 	@bandCount.setter
+	@helpers.isInt
 	@helpers.isPositive
 	def bandCount(self, value):
 		if(value is not None):
@@ -95,6 +97,7 @@ class Component:
 		return self._condense
 
 	@condense.setter
+	@helpers.isBool
 	def condense(self, value):
 		self._condense = value or CONDENSE_VALUE
 
@@ -103,6 +106,7 @@ class Component:
 		return self._showColorCodes
 	
 	@showColorCodes.setter
+	@helpers.isBool
 	def showColorCodes(self, value):
 		self._showColorCodes = value or SHOW_COLOR_CODES
 	
@@ -111,6 +115,7 @@ class Component:
 		return self._showTolerance
 
 	@showTolerance.setter
+	@helpers.isBool
 	def showTolerance(self, value):
 		self._showTolerance = value or SHOW_TOLERANCE
 
@@ -119,6 +124,7 @@ class Component:
 		return self._voltage
 
 	@voltage.setter
+	@helpers.isFloat
 	@helpers.isPositive
 	def voltage(self, value):
 		if(value is not None):
@@ -134,6 +140,7 @@ class Component:
 		return self._temperature
 
 	@temperature.setter
+	@helpers.isInt
 	@helpers.isPositive
 	def temperature(self, value):
 		if(value is not None):

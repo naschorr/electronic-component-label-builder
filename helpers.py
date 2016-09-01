@@ -61,6 +61,43 @@ def testForRange(value, valueList, **kwargs):
 		return outputValue
 
 ## Meant to be used as a decorator
+def isInt(func):
+	def inner(*args):
+		self = args[0]
+		value = args[1]
+		if(value is not None):
+			if(isinstance(value, int)):
+				return func(self, value)
+			elif(isinstance(value, float)):
+				return func(self, int(value))
+		return func(self, None)
+	return inner
+
+## Meant to be used as a decorator
+def isFloat(func):
+	def inner(*args):
+		self = args[0]
+		value = args[1]
+		if(value is not None):
+			if(isinstance(value, float)):
+				return func(self, value)
+			elif(isinstance(value, int)):
+				return func(self, float(value))
+		return func(self, None)
+	return inner
+
+## Meant to be used as a decorator
+def isBool(func):
+	def inner(*args):
+		self = args[0]
+		value = args[1]
+		if(value is not None):
+			if(isinstance(value, bool)):
+				return func(self, value)
+		return func(self, None)
+	return inner
+
+## Meant to be used as a decorator
 def isPositive(func):
 	def inner(*args):
 		self = args[0]
