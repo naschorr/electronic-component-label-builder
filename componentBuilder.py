@@ -74,7 +74,7 @@ class Component:
 	def tolerance(self, value):
 		if(value is not None):
 			validTolerances = [key for key in RESISTOR_TOLS]
-			self._tolerance = helpers.testForRange(value, validTolerances, valueName="tolerance")
+			self._tolerance = helpers.testForRange(value, validTolerances, "tolerance")
 		else:
 			self._tolerance = TOLERANCE
 
@@ -88,7 +88,7 @@ class Component:
 	def bandCount(self, value):
 		if(value is not None):
 			validBands = [4,5]
-			self._bandCount = helpers.testForRange(value, validBands, valueName="bandCount")
+			self._bandCount = helpers.testForRange(value, validBands, "bandCount")
 		else:
 			self._bandCount = BAND_COUNT
 
@@ -131,7 +131,7 @@ class Component:
 			## Voltages checked against: http://www.pmel.org/Handbook/HBpage26.htm
 			voltages = [v for v in helpers.incRange(100, 1000, 100)]
 			voltages.append(2000)
-			self._voltage = helpers.testForRange(value, voltages, valueName="voltage")
+			self._voltage = helpers.testForRange(value, voltages, "voltage")
 		else:
 			self._voltage = VOLTAGE
 
@@ -146,7 +146,7 @@ class Component:
 		if(value is not None):
 			## Temperatures checked against: https://en.wikipedia.org/wiki/Electronic_color_code#Capacitor_color-coding
 			temperatures = [70, 85, 125, 150]
-			self._temperature = helpers.testForRange(value, temperatures, valueName="temperature")
+			self._temperature = helpers.testForRange(value, temperatures, "temperature")
 		else:
 			self._temperature = TEMPERATURE
 

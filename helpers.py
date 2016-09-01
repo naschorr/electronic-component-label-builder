@@ -30,7 +30,7 @@ def incRange(first, *args):
 		raise TypeError('incRange expected at most 3 arguments, got {0}'.format(argLen + 1))
 
 
-def testForRange(value, valueList, **kwargs):
+def testForRange(value, valueList, valueName='value'):
 	if(value in valueList):
 		return value
 	else:
@@ -40,7 +40,7 @@ def testForRange(value, valueList, **kwargs):
 		index = 0
 		rangeFound = False
 		thisIndex = None
-		outputString = "Supplied " + (kwargExists("valueName", kwargs) or 'value') + " of " + str(value)
+		outputString = "Supplied " + valueName + " of " + str(value)
 		outputValue = None
 		## Tries to find the smallest number in the list that's bigger than the test value.
 		while(index < len(valueList) and not rangeFound):
