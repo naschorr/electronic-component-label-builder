@@ -60,61 +60,59 @@ def testForRange(value, valueList, **kwargs):
 		print(outputString)
 		return outputValue
 
+def checkType(value, desiredType, castableTypes=[]):
+	if(value is None):
+		return None
+	if(isinstance(value, desiredType)):
+		return value
+	else:
+		for typeIndex in castableTypes:
+			if(isinstance(value, typeIndex)):
+				return desiredType(value)
+	return None
+
 ## Meant to be used as a decorator
 def isInt(func):
-	def inner(*args):
+	def wrapper(*args):
 		self = args[0]
-		value = args[1]
-		if(value is not None):
-			if(isinstance(value, int)):
-				return func(self, value)
-			elif(isinstance(value, float)):
-				return func(self, int(value))
-		return func(self, None)
-	return inner
+		value = checkType(args[1], int, [float])
+		return func(self, value)
+	return wrapper
 
 ## Meant to be used as a decorator
 def isFloat(func):
-	def inner(*args):
+	def wrapper(*args):
 		self = args[0]
-		value = args[1]
-		if(value is not None):
-			if(isinstance(value, float)):
-				return func(self, value)
-			elif(isinstance(value, int)):
-				return func(self, float(value))
-		return func(self, None)
-	return inner
+		value = checkType(args[1], float, [int])
+		return func(self, value)
+	return wrapper
 
 ## Meant to be used as a decorator
 def isBool(func):
-	def inner(*args):
+	def wrapper(*args):
 		self = args[0]
-		value = args[1]
-		if(value is not None):
-			if(isinstance(value, bool)):
-				return func(self, value)
-		return func(self, None)
-	return inner
+		value = checkType(args[1], bool)
+		return func(self, value)
+	return wrapper
 
 ## Meant to be used as a decorator
 def isPositive(func):
-	def inner(*args):
+	def wrapper(*args):
 		self = args[0]
 		value = args[1]
 		if(value is not None):
 			if(value > 0):
 				return func(self, value)
 		return func(self, None)
-	return inner
+	return wrapper
 
 ## Meant to be used as a decorator
 def isNotNegative(func):
-	def inner(*args):
+	def wrapper(*args):
 		self = args[0]
 		value = args[1]
 		if(value is not None):
 			if(value >= 0):
 				return func(self, value)
 		return func(self, None)
-	return inner
+	return wrapper
