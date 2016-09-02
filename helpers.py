@@ -96,6 +96,14 @@ def isBool(func):
 	return wrapper
 
 ## Meant to be used as a decorator
+def isStr(func):
+	def wrapper(*args):
+		self = args[0]
+		value = checkType(args[1], str)
+		return func(self, value)
+	return wrapper
+
+## Meant to be used as a decorator
 def isPositive(func):
 	def wrapper(*args):
 		self = args[0]

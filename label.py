@@ -1,3 +1,5 @@
+import helpers
+
 class Label:
 	def __init__(self, text, colorCode=None):
 		self._text = text
@@ -10,6 +12,7 @@ class Label:
 	    return self._text
 
 	@text.setter
+	@helpers.isStr
 	def text(self, value):
 		self._text = value
 

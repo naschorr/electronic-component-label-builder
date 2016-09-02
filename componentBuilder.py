@@ -10,8 +10,9 @@ UNITS = 'Ω'
 CONDENSE_VALUE = True
 SHOW_COLOR_CODES = True
 SHOW_TOLERANCE = True
-VOLTAGE = 100	# Voltage limit. See setter property for more details
-TEMPERATURE = 70	# Operating temperature range, from -55c to 70c in this case
+VOLTAGE = 100	# Voltage limit (Capacitor)
+TEMPERATURE = 70	# Operating temperature range (Capacitor)
+COMPONENT = "resistor"
 
 ## Prefixes
 METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
@@ -23,10 +24,8 @@ RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.0
 INDUCTOR_TOLS = {20:"black", 1:"brown", 2:"red", 5:"green", 10:"white"}
 CAPACITOR_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}
 
-## Component identification strings
-RESISTOR_ID = ['Ω', 'ohm', 'resist']
-INDUCTOR_ID = ['henr', 'induct']
-CAPACITOR_ID = ['farad', 'capacit']
+## Supported components
+COMPONENTS = ["resistor", "capacitor", "inductor"]
 
 class Component:
 	def __init__(self, dataObj, **kwargs):
@@ -39,6 +38,8 @@ class Component:
 		self.showTolerance = helpers.setBoolKwarg("showTolerance", kwargs, SHOW_TOLERANCE)
 		self.voltage = helpers.kwargExists("voltage", kwargs)
 		self.temperature = helpers.kwargExists("temperature", kwargs)
+
+		self.component = self.guessComponent(kwargs)
 
 		self._labels = []
 
@@ -61,6 +62,7 @@ class Component:
 		return self._unitName
 	
 	@unitName.setter
+	@helpers.isStr
 	def unitName(self, value):
 		self._unitName = value or UNITS
 
@@ -158,7 +160,27 @@ class Component:
 	def labels(self, value):
 		self._labels = value
 
+	@property
+	def component(self):
+		return self._component
+
+	@component.setter
+	@helpers.isStr
+	def component(self, value):
+		if(value in COMPONENTS):
+			self._component = value
+		else:
+			self._component = COMPONENT
+	
+
 	## Methods
+
+	def guessComponent(self, kwargs):
+		if(helpers.kwargExists("voltage", kwargs) and helpers.kwargExists("temperature", kwargs)):
+			return "capacitor"
+		else:
+			return "resistor"
+
 
 	def getFractionalDigitCount(self, value):
 		count = 0
