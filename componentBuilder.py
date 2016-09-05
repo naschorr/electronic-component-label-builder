@@ -22,8 +22,8 @@ METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
 COLORS = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
 MULTIPLIERS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 100000:"green", 1000000:"blue", 10000000:"purple", 100000000:"gray", 1000000000:"white", 0.1:"gold", 0.01:"silver"}
 RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.05:"gray", 5:"gold", 10:"silver"}
-INDUCTOR_TOLS = {20:"black", 1:"brown", 2:"red", 5:"green", 10:"white"}
-CAPACITOR_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}
+LC_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}	# Inductor and Capacitor tolerance colors
+
 
 ## Supported components
 RESISTOR_STR = "resistor"
@@ -182,15 +182,13 @@ class Component:
 		if(value in COMPONENTS):
 			self._component = value
 		else:
-			self._component = COMPONENTS[0]	# resistor
+			self._component = RESISTOR_STR
 
 	## Methods
 
 	def guessComponent(self):
 		if(helpers.kwargExists("voltage", self.kwargs) or helpers.kwargExists("temperature", self.kwargs)):
 			return CAPACITOR_STR
-		elif(False):
-			return INDUCTOR_STR
 		else:
 			return RESISTOR_STR
 
@@ -275,7 +273,7 @@ class Component:
 		if(self.component == CAPACITOR_STR):
 			name += ' ' + METRIC_PREFIXES[exponent]
 		elif(self.component == INDUCTOR_STR):
-			pass
+			name += ' ' + METRIC_PREFIXES[exponent + 2]
 		else:
 			name += ' ' + METRIC_PREFIXES[int(len(METRIC_PREFIXES)/2) + exponent]
 
@@ -306,10 +304,8 @@ class Component:
 			return None
 
 		if(self.showTolerance):
-			if(self.component == CAPACITOR_STR):
-				tolerance = CAPACITOR_TOLS[float(self.tolerance)]
-			elif(self.component == INDUCTOR_STR):
-				tolerance = INDUCTOR_TOLS[float(self.tolerance)]
+			if(self.component == CAPACITOR_STR or self.component == INDUCTOR_STR):
+				tolerance = LC_TOLS[float(self.tolerance)]
 			else:
 				tolerance = RESISTOR_TOLS[float(self.tolerance)]
 			bands.append(tolerance)
@@ -325,8 +321,6 @@ class Component:
 				optionBands.append(self.voltage)
 			if(helpers.kwargExists("temperature", self.kwargs)):
 				optionBands.append(self.temperature)
-		elif(self.component == INDUCTOR_STR):
-			pass
 		return optionBands
 
 
