@@ -3,16 +3,17 @@ import inflect
 import label
 import helpers
 
-## Defaults
+## Defaults (Set to default to a generic resistor)
 TOLERANCE = 5.0
-BAND_COUNT = 5 	# Only supports 4 and 5 band codes so far
-UNITS = 'Ω'
+SIG_BAND_COUNT = 3
+RESISTOR_UNITS = 'Ω'
+CAPACITOR_UNITS = 'F'
+INDUCTOR_UNITS = 'H'
 CONDENSE_VALUE = True
 SHOW_COLOR_CODES = True
 SHOW_TOLERANCE = True
 VOLTAGE = 100	# Voltage limit (Capacitor)
 TEMPERATURE = 70	# Operating temperature range (Capacitor)
-COMPONENT = "resistor"
 
 ## Prefixes
 METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
@@ -25,12 +26,15 @@ INDUCTOR_TOLS = {20:"black", 1:"brown", 2:"red", 5:"green", 10:"white"}
 CAPACITOR_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}
 
 ## Supported components
-COMPONENTS = ["resistor", "capacitor", "inductor"]
+RESISTOR_STR = "resistor"
+CAPACITOR_STR = "capacitor"
+INDUCTOR_STR = "inductor"
+COMPONENTS = [RESISTOR_STR, CAPACITOR_STR, INDUCTOR_STR]
 
 class Component:
 	def __init__(self, dataObj, **kwargs):
 		self.dataObj = dataObj
-		self.unitName = helpers.kwargExists("unitName", kwargs)
+		self.kwargs = kwargs
 		self.tolerance = helpers.kwargExists("tolerance", kwargs)
 		self.bandCount = helpers.kwargExists("bandCount", kwargs)
 		self.condense = helpers.setBoolKwarg("condense", kwargs, CONDENSE_VALUE)
@@ -39,7 +43,11 @@ class Component:
 		self.voltage = helpers.kwargExists("voltage", kwargs)
 		self.temperature = helpers.kwargExists("temperature", kwargs)
 
-		self.component = self.guessComponent(kwargs)
+		## With all other data set, try to guess which component it is.
+		self.component = helpers.kwargExists("component", kwargs) or self.guessComponent()
+
+		## With the component set, either apply the user's units or pick them based off of the component.
+		self.unitName = helpers.kwargExists("unitName", kwargs) or self.setUnits()
 
 		self._labels = []
 
@@ -58,13 +66,21 @@ class Component:
 		self._dataObj = value
 
 	@property
+	def kwargs(self):
+		return self._kwargs
+
+	@kwargs.setter
+	def kwargs(self, value):
+		self._kwargs = value
+
+	@property
 	def unitName(self):
 		return self._unitName
 	
 	@unitName.setter
 	@helpers.isStr
 	def unitName(self, value):
-		self._unitName = value or UNITS
+		self._unitName = value or RESISTOR_UNITS
 
 	@property
 	def tolerance(self):
@@ -88,11 +104,7 @@ class Component:
 	@helpers.isInt
 	@helpers.isPositive
 	def bandCount(self, value):
-		if(value is not None):
-			validBands = [4,5]
-			self._bandCount = helpers.testForRange(value, validBands, "bandCount")
-		else:
-			self._bandCount = BAND_COUNT
+		self._bandCount = value or SIG_BAND_COUNT
 
 	@property
 	def condense(self):
@@ -170,16 +182,26 @@ class Component:
 		if(value in COMPONENTS):
 			self._component = value
 		else:
-			self._component = COMPONENT
-	
+			self._component = COMPONENTS[0]	# resistor
 
 	## Methods
 
-	def guessComponent(self, kwargs):
-		if(helpers.kwargExists("voltage", kwargs) and helpers.kwargExists("temperature", kwargs)):
-			return "capacitor"
+	def guessComponent(self):
+		if(helpers.kwargExists("voltage", self.kwargs) or helpers.kwargExists("temperature", self.kwargs)):
+			return CAPACITOR_STR
+		elif(False):
+			return INDUCTOR_STR
 		else:
-			return "resistor"
+			return RESISTOR_STR
+
+
+	def setUnits(self):
+		if(self.component == CAPACITOR_STR):
+			return CAPACITOR_UNITS
+		elif(self.component == INDUCTOR_STR):
+			return INDUCTOR_UNITS
+		else:
+			return RESISTOR_UNITS
 
 
 	def getFractionalDigitCount(self, value):
@@ -216,11 +238,11 @@ class Component:
 		## Return formatted string, as well as appropriate metric prefix. Notice 
 		##		how it starts in the middle of the METRIC_PREFIXES list, and then 
 		##		the count variable modifies the position.
-		return str(value) + METRIC_PREFIXES[count + int(len(METRIC_PREFIXES)/2)]
+		return str(value), count
 
 
 	def getLeadingDigits(self, value, numDigits=None):
-		numDigits = numDigits if numDigits else self.bandCount-2
+		numDigits = numDigits if numDigits else self.bandCount
 
 		stringValue = str(value)
 		leadingDigits = ""
@@ -243,46 +265,72 @@ class Component:
 
 
 	def buildLabelName(self, value):
-		## Condense the name (ex. 10000 -> 10k) if the user has allowed it
+		## Condense the name (ex. 10000 -> 10) if the user has allowed it
 		if(self.condense):
-			name = self.condenseValue(value)
+			name, exponent = self.condenseValue(value)
 		else:
 			name = value
+
+		if(self.component == CAPACITOR_STR):
+			name += ' ' + METRIC_PREFIXES[exponent]
+		elif(self.component == INDUCTOR_STR):
+			pass
+		else:
+			name += ' ' + METRIC_PREFIXES[int(len(METRIC_PREFIXES)/2) + exponent]
 
 		## Make sure that there is a unitname to append
 		if(len(self.unitName) > 0):
 			## Pluralize the name if it's not singular, and doesn't contain special characters
 			if(float(value) > 1 and len(self.unitName) > 1 and not any(ord(char) < 32 or ord(char) > 126 for char in self.unitName)):
-				name += " " + inflect.engine().plural(self.unitName)
+				name += inflect.engine().plural(self.unitName)
 			else:
-				name += " " + self.unitName
+				name += self.unitName
 
 		return name
 
 
-	def buildLabelColorCode(self, value, leadingDigits):
+	def buildBaseColorCode(self, value, leadingDigits):
 		## Ppopulate the first 3 indecies with the appropriate colors
-		bands = self.bandCount*["black"]
-		for counter, digit in enumerate(str(leadingDigits)):
-			bands[counter] = COLORS[int(digit)]
+		bands = []
+		for digit in str(leadingDigits):
+			bands.append(COLORS[int(digit)])
 
 		## Populate the multiplier band with its color
 		multiplierIndex = round(float(value) / leadingDigits, 2)
 
 		try:
-			if(self.bandCount == 4):
-				bands[-2] = MULTIPLIERS[multiplierIndex]
-			elif(self.bandCount == 5):
-				bands[-2] = MULTIPLIERS[multiplierIndex]
+			bands.append(MULTIPLIERS[multiplierIndex])
 		except KeyError as ke:
 			print("KeyError", ke, "Ignoring bands for this label.")
-			bands = None
+			return None
 
 		if(self.showTolerance):
-			## Populate the tolerance band with its color
-			bands[-1] = RESISTOR_TOLS[float(self.tolerance)]
-		else:
-			del bands[-1]
+			if(self.component is CAPACITOR_STR):
+				tolerance = CAPACITOR_TOLS[float(self.tolerance)]
+			elif(self.component is INDUCTOR_STR):
+				tolerance = INDUCTOR_TOLS[float(self.tolerance)]
+			else:
+				tolerance = RESISTOR_TOLS[float(self.tolerance)]
+			bands.append(tolerance)
+
+		return bands
+
+	def buildOptionsColorCode(self):
+		optionBands = []
+		if(self.component is CAPACITOR_STR):
+			## Check to make sure that the user specified their own values, and don't just append the defaults in.
+			if(helpers.kwargExists("voltage", self.kwargs)):
+				optionBands.append(self.voltage)
+			if(helpers.kwargExists("temperature", self.kwargs)):
+				optionBands.append(self.temperature)
+		elif(self.component is INDUCTOR_STR):
+			pass
+		return optionBands
+
+
+	def buildLabelColorCode(self, value, leadingDigits):
+		bands = self.buildBaseColorCode(value, leadingDigits)
+		bands.extend(self.buildOptionsColorCode())
 
 		return bands
 
