@@ -76,7 +76,7 @@ class Component:
 	@property
 	def unitName(self):
 		return self._unitName
-	
+
 	@unitName.setter
 	@helpers.isStr
 	def unitName(self, value):
@@ -85,7 +85,7 @@ class Component:
 	@property
 	def tolerance(self):
 		return self._tolerance
-	
+
 	@tolerance.setter
 	@helpers.isFloat
 	@helpers.isPositive
@@ -99,7 +99,7 @@ class Component:
 	@property
 	def bandCount(self):
 		return self._bandCount
-	
+
 	@bandCount.setter
 	@helpers.isInt
 	@helpers.isPositive
@@ -118,12 +118,12 @@ class Component:
 	@property
 	def showColorCodes(self):
 		return self._showColorCodes
-	
+
 	@showColorCodes.setter
 	@helpers.isBool
 	def showColorCodes(self, value):
 		self._showColorCodes = value or SHOW_COLOR_CODES
-	
+
 	@property
 	def showTolerance(self):
 		return self._showTolerance
@@ -256,6 +256,7 @@ class Component:
 				continue
 			leadingDigits += thisChar
 			stringIndex += 1
+			digitCounter += 1
 
 		## If (3) digits aren't found, pad it out with 0s
 		while(len(leadingDigits) < numDigits):
@@ -305,9 +306,9 @@ class Component:
 			return None
 
 		if(self.showTolerance):
-			if(self.component is CAPACITOR_STR):
+			if(self.component == CAPACITOR_STR):
 				tolerance = CAPACITOR_TOLS[float(self.tolerance)]
-			elif(self.component is INDUCTOR_STR):
+			elif(self.component == INDUCTOR_STR):
 				tolerance = INDUCTOR_TOLS[float(self.tolerance)]
 			else:
 				tolerance = RESISTOR_TOLS[float(self.tolerance)]
@@ -315,22 +316,24 @@ class Component:
 
 		return bands
 
+
 	def buildOptionsColorCode(self):
 		optionBands = []
-		if(self.component is CAPACITOR_STR):
+		if(self.component == CAPACITOR_STR):
 			## Check to make sure that the user specified their own values, and don't just append the defaults in.
 			if(helpers.kwargExists("voltage", self.kwargs)):
 				optionBands.append(self.voltage)
 			if(helpers.kwargExists("temperature", self.kwargs)):
 				optionBands.append(self.temperature)
-		elif(self.component is INDUCTOR_STR):
+		elif(self.component == INDUCTOR_STR):
 			pass
 		return optionBands
 
 
 	def buildLabelColorCode(self, value, leadingDigits):
 		bands = self.buildBaseColorCode(value, leadingDigits)
-		bands.extend(self.buildOptionsColorCode())
+		if(bands):
+			bands.extend(self.buildOptionsColorCode())
 
 		return bands
 
@@ -346,4 +349,3 @@ class Component:
 			bands = None
 
 		return name, bands
-			

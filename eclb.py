@@ -1,6 +1,6 @@
 import click
 
-import dataGrabber
+import dataInput
 import componentBuilder
 import sheetConfig
 import sheetBuilder
@@ -62,7 +62,7 @@ def main(
 		"labelColorCodeOffset":label_colorcode_offset, "debug":debug
 	}
 
-	data = dataGrabber.Data(path_to_component_data)
+	data = dataInput.Data(path_to_component_data)
 	labels = componentBuilder.Component(data, **componentBuilderArgs).labels
 	sheetConf = sheetConfig.SheetConfig(**sheetConfigArgs)
 	sheet = sheetBuilder.SheetBuilder(sheetConf, labels, **sheetBuilderArgs)
