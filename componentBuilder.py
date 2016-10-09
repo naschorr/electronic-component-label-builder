@@ -24,7 +24,6 @@ MULTIPLIERS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 
 RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.05:"gray", 5:"gold", 10:"silver"}
 LC_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}	# Inductor and Capacitor tolerance colors
 
-
 ## Supported components
 RESISTOR_STR = "resistor"
 CAPACITOR_STR = "capacitor"
@@ -113,7 +112,7 @@ class Component:
 	@condense.setter
 	@helpers.isBool
 	def condense(self, value):
-		self._condense = value or CONDENSE_VALUE
+		self._condense = value
 
 	@property
 	def showColorCodes(self):
@@ -122,7 +121,7 @@ class Component:
 	@showColorCodes.setter
 	@helpers.isBool
 	def showColorCodes(self, value):
-		self._showColorCodes = value or SHOW_COLOR_CODES
+		self._showColorCodes = value
 
 	@property
 	def showTolerance(self):
@@ -131,7 +130,7 @@ class Component:
 	@showTolerance.setter
 	@helpers.isBool
 	def showTolerance(self, value):
-		self._showTolerance = value or SHOW_TOLERANCE
+		self._showTolerance = value
 
 	@property
 	def voltage(self):

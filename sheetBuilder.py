@@ -14,6 +14,8 @@ LABEL_TEXT_OFFSET = 0.05
 LABEL_COLORCODE_OFFSET = -0.05
 SCALE = 500
 DEBUG = False
+SHOW = True
+DRY_RUN = False
 
 class SheetBuilder:
 	def __init__(self, sheetConfig, labels, **kwargs):
@@ -32,6 +34,8 @@ class SheetBuilder:
 		self.labelTextOffset = helpers.kwargExists("labelTextOffset", kwargs)
 		self.labelColorCodeOffset = helpers.kwargExists("labelColorCodeOffset", kwargs)
 		self.debug = helpers.setBoolKwarg("debug", kwargs, DEBUG)
+		self.show = helpers.setBoolKwarg("show", kwargs, SHOW)
+		self.dryRun = helpers.setBoolKwarg("dryRun", kwargs, DRY_RUN)
 
 		self.drawSheet()
 
@@ -154,9 +158,28 @@ class SheetBuilder:
 	@debug.setter
 	@helpers.isBool
 	def debug(self, value):
-		self._debug = value or DEBUG
+		self._debug = value
+
+	@property
+	def show(self):
+		return self._show
+
+	@show.setter
+	@helpers.isBool
+	def show(self, value):
+		self._show = value
+
+	@property
+	def dryRun(self):
+		return self._dryRun
+
+	@dryRun.setter
+	@helpers.isBool
+	def dryRun(self, value):
+		self._dryRun = value
 	
 	## Methods
+
 
 	def getLabelBounds(self, row, col):
 		sc = self.sheetConfig
@@ -166,6 +189,7 @@ class SheetBuilder:
 		botRightY = topLeftY+sc.labelHeight-1
 		return topLeftX, topLeftY, botRightX, botRightY
 
+
 	def drawColorCode(self, draw, colorCode, centerX, centerY):
 		## Determine overall width of the color code boxes, then get the top left corner's coorderinates from that.
 		colorCodeWidth = len(colorCode)*self.boxSize+(len(colorCode)-1)*self.boxSpacerWidth
@@ -174,6 +198,7 @@ class SheetBuilder:
 		## Draw the boxes with 
 		for box, color in enumerate(colorCode):
 			draw.rectangle([topLeftX + box*(self.boxSize+self.boxSpacerWidth), topLeftY, topLeftX + box*(self.boxSize+self.boxSpacerWidth) + self.boxSize, topLeftY + self.boxSize], color, 'black')
+
 
 	def drawDebug(self, image, draw):
 		sc = self.sheetConfig
@@ -200,6 +225,7 @@ class SheetBuilder:
 			for col in range(sc.cols):
 				topLeftX, topLeftY, botRightX, botRightY = self.getLabelBounds(row, col)
 				draw.rectangle([topLeftX, topLeftY, botRightX, botRightY], None, 'blue')
+
 
 	def drawLabels(self, image, draw, ttf):
 		sc = self.sheetConfig
@@ -246,10 +272,16 @@ class SheetBuilder:
 
 		return sheets
 
+
+	def showSheets(self, sheets):
+		for counter, image in enumerate(sheets):
+			image.show()
+
+
 	def saveSheets(self, sheets):
 		for counter, image in enumerate(sheets):
-			#image.save("eclb_" + str(counter) + self.outputType)
-			image.show()
+			image.save("eclb_" + str(counter) + self.outputType)
+
 
 	def drawSheet(self):
 		sheetSize = (int(self.sheetConfig.sheetWidth), int(self.sheetConfig.sheetHeight))
@@ -260,6 +292,9 @@ class SheetBuilder:
 		if(self.debug):
 			self.drawDebug(image, draw)
 		sheets = self.drawLabels(image, draw, ttf)
-		self.saveSheets(sheets)
+		if(self.show):
+			self.showSheets(sheets)
+		if(not self.dryRun):
+			self.saveSheets(sheets)
 
 		del draw

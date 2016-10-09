@@ -7,8 +7,14 @@ def kwargExists(kwarg, kwargs):
 
 def setBoolKwarg(kwargString, kwargs, defaultValue):
 	kwargState = kwargExists(kwargString, kwargs)
-	return kwargState if kwargState is True or kwargState is False else defaultValue
+	if(kwargState is not None):
+		return kwargState
+	else:
+		return defaultValue
 
+
+def strip(string):
+	return string.rstrip().lstrip()
 
 ## Inclusive range
 def incRange(first, *args):

@@ -35,13 +35,15 @@ import sheetBuilder
 @click.option('--label-text-offset', type=float, help='The veritcal distance to offset label text. (Positive values offset it down, and negatives offset it up.)')
 @click.option('--label-colorcode-offset', type=float, help='The vertical distance to offset label color codes. (Positive values offset it down, and negatives offset it up.)')
 @click.option('--debug/--no-debug', default=False, help='Choose to render debug gridlines on the sticker sheet. (Helps with alignment)')
+@click.option('--show/--no-show', default=True, help='Choose to show a preview of the resulting image.')
+@click.option('--dry-run/--no-dry-run', default=False, help='Choose to save the resulting images or not.')
 def main(
 		path_to_component_data, sheet_height, sheet_width, upper_margin, 
 		left_margin, middle_padding, label_height, label_width, rows, columns,
 		units, tolerance, bands, condense, color_codes, show_tolerance, 
 		voltage, temperature, component, scale, output_format, font, font_size, box_size, 
 		box_spacer_width, labels_per_sticker, label_text_offset, 
-		label_colorcode_offset, debug):
+		label_colorcode_offset, debug, show, dry_run):
 
 	sheetConfigArgs = {
 		"sheetHeight":sheet_height, "sheetWidth":sheet_width, "upperMargin":upper_margin,
@@ -56,10 +58,11 @@ def main(
 	}
 
 	sheetBuilderArgs = {
-		"scale":scale, "outputType":output_format, "font":font, "fontSize":font_size, 
+		"scale":scale, "outputType":output_format, "font":font, "fontSize":font_size,
 		"boxSize":box_size, "boxSpacerWidth":box_spacer_width, 
 		"labelsPerSticker":labels_per_sticker, "labelTextOffset":label_text_offset, 
-		"labelColorCodeOffset":label_colorcode_offset, "debug":debug
+		"labelColorCodeOffset":label_colorcode_offset, "debug":debug, "show":show, 
+		"dryRun":dry_run
 	}
 
 	data = dataInput.Data(path_to_component_data)
