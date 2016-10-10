@@ -112,7 +112,7 @@ class Component:
 	@condense.setter
 	@helpers.isBool
 	def condense(self, value):
-		self._condense = value
+		self._condense = value if value is not None else CONDENSE_VALUE
 
 	@property
 	def showColorCodes(self):
@@ -121,7 +121,7 @@ class Component:
 	@showColorCodes.setter
 	@helpers.isBool
 	def showColorCodes(self, value):
-		self._showColorCodes = value
+		self._showColorCodes = value if value is not None else SHOW_COLOR_CODES
 
 	@property
 	def showTolerance(self):
@@ -130,7 +130,7 @@ class Component:
 	@showTolerance.setter
 	@helpers.isBool
 	def showTolerance(self, value):
-		self._showTolerance = value
+		self._showTolerance = value if value is not None else SHOW_TOLERANCE
 
 	@property
 	def voltage(self):

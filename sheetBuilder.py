@@ -158,7 +158,7 @@ class SheetBuilder:
 	@debug.setter
 	@helpers.isBool
 	def debug(self, value):
-		self._debug = value
+		self._debug = value if value is not None else DEBUG
 
 	@property
 	def show(self):
@@ -167,7 +167,7 @@ class SheetBuilder:
 	@show.setter
 	@helpers.isBool
 	def show(self, value):
-		self._show = value
+		self._show = value if value is not None else SHOW
 
 	@property
 	def dryRun(self):
@@ -176,7 +176,7 @@ class SheetBuilder:
 	@dryRun.setter
 	@helpers.isBool
 	def dryRun(self, value):
-		self._dryRun = value
+		self._dryRun = value if value is not None else DRY_RUN
 	
 	## Methods
 
