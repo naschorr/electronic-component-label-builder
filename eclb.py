@@ -1,3 +1,4 @@
+from sys import exit
 import click
 
 import dataInput
@@ -66,6 +67,8 @@ def main(
 	}
 
 	data = dataInput.Data(path_to_component_data)
+	if(None in data.dataLines):
+		sys.exit()
 	labels = componentBuilder.Component(data, **componentBuilderArgs).labels
 	sheetConf = sheetConfig.SheetConfig(**sheetConfigArgs)
 	sheet = sheetBuilder.SheetBuilder(sheetConf, labels, **sheetBuilderArgs)

@@ -202,8 +202,11 @@ class Component:
 
 
 	def getFractionalDigitCount(self, value):
+		if(value == 0.0):
+			return 0
+
 		count = 0
-		while(value * 10 < 1):
+		while(value * 10 <= 1):
 			value *= 10
 			count += 1
 
@@ -211,6 +214,9 @@ class Component:
 
 
 	def condenseValue(self, value):
+		if(value == 0.0):
+			return "0", 0
+
 		value = float(value)
 		fractionalDigits = self.getFractionalDigitCount(value)
 
@@ -266,15 +272,15 @@ class Component:
 		## Condense the name (ex. 10000 -> 10) if the user has allowed it
 		if(self.condense):
 			name, exponent = self.condenseValue(value)
-		else:
-			name = value
 
-		if(self.component == CAPACITOR_STR):
-			name += ' ' + METRIC_PREFIXES[exponent]
-		elif(self.component == INDUCTOR_STR):
-			name += ' ' + METRIC_PREFIXES[exponent + 2]
+			if(self.component == CAPACITOR_STR):
+				name += ' ' + METRIC_PREFIXES[exponent]
+			elif(self.component == INDUCTOR_STR):
+				name += ' ' + METRIC_PREFIXES[exponent + 2]
+			else:
+				name += ' ' + METRIC_PREFIXES[int(len(METRIC_PREFIXES)/2) + exponent]
 		else:
-			name += ' ' + METRIC_PREFIXES[int(len(METRIC_PREFIXES)/2) + exponent]
+			name = str(value)
 
 		## Make sure that there is a unitname to append
 		if(len(self.unitName) > 0):

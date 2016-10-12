@@ -1,5 +1,4 @@
 from re import match
-from sys import exit
 
 import helpers
 
@@ -51,10 +50,10 @@ class Data:
 		except AttributeError as ae:
 			alert = "Invalid value for the input '{0}'. Input should be of the form <number> <metric prefix> where the number is a float or integer. Quitting now."
 			print(alert.format(value))
-			exit()
+			return None
 		except KeyError as ke:
 			alert = "Invalid metric prefix for the input '{0}'. Input should be of the form <number> <metric prefix> where the prefix is in the list {1}. Quitting now."
 			print(alert.format(value, [prefix for prefix in METRIC_PREFIX_VALUES]))
-			exit()
+			return None
 
-		return int(componentValue * prefixValue)
+		return float(componentValue * prefixValue)
