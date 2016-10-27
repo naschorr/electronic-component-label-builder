@@ -29,7 +29,7 @@ import sheetBuilder
 @click.option('--scale', '-s', type=int, help='The scale for rendering the sticker sheet. Bigger scale means higher resolution. Might have to play around with this to get the units to work.')		# sheetBuilder
 @click.option('--output-format', '-o', help='Image type to save the sticker sheet as.')
 @click.option('--font', type=click.Path(exists=True), help='Path to the font to use in label text.')
-@click.option('--font-size', '-f', type=int, help='The size of the font used on the labels.')
+@click.option('--font-size', '-f', type=int, help='The size of the font used on the labels. (as a percentage, ex. 100 is default).')
 @click.option('--box-size', type=float, help='The size of the boxes that hold color bands. (inches)')
 @click.option('--box-spacer-width', type=float, help='The size of the spacer between the color band boxes. (inches)')
 @click.option('--labels-per-sticker', '-l', type=int, help='The number of labels to place in each sticker.')
