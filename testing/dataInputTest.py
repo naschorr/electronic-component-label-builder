@@ -27,7 +27,8 @@ class TestDataInput(unittest.TestCase):
 								("100 a", None),
 								("10 K", None),
 								("10g", None),
-								("3.3 v", None)]
+								("3.3 v", None),
+								("-3.3 volts", None)]
 
 		for assertion in assertEqualTuples:
 			try:

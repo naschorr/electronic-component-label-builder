@@ -12,17 +12,43 @@ INDUCTOR_UNITS = 'H'
 CONDENSE_VALUE = True
 SHOW_COLOR_CODES = True
 SHOW_TOLERANCE = True
-VOLTAGE = 100	# Voltage limit (Capacitor)
-TEMPERATURE = 70	# Operating temperature range (Capacitor)
+VOLTAGE = 100		# Voltage limit (Capacitor)
+TEMPERATURE = 70	# Operating temperature (Capacitor) (-55 to 70)
 
 ## Prefixes
 METRIC_PREFIXES = ["p", "n", "µ", "m", "", "k", "M", "G", "T"]
 
+## Color Name Strings
+BLACK = "black"
+BROWN = "brown"
+RED = "red"
+ORANGE = "orange"
+YELLOW = "yellow"
+GREEN = "green"
+BLUE = "blue"
+PURPLE = "purple"
+GRAY = "gray"
+WHITE = "white"
+GOLD = "gold"
+SILVER = "silver"
+
+## RGB Color Configuration
+RGB_COLORS = {BLACK:(0, 0, 0), BROWN:(165, 42, 42), RED:(255, 0, 0), 
+			  ORANGE:(255, 165, 0), YELLOW:(255, 255, 0), GREEN:(53, 169, 7), 
+			  BLUE:(0, 0, 255), PURPLE:(128, 0, 128), GRAY:(95, 95, 95), 
+			  WHITE:(255, 255, 255), GOLD:(212, 175, 55), SILVER:(175, 175, 175)}
+
 ## Band information
-COLORS = ["black", "brown", "red", "orange", "yellow", "green", "blue", "purple", "gray", "white"]
-MULTIPLIERS = {1:"black", 10:"brown", 100:"red", 1000:"orange", 10000:"yellow", 100000:"green", 1000000:"blue", 10000000:"purple", 100000000:"gray", 1000000000:"white", 0.1:"gold", 0.01:"silver"}
-RESISTOR_TOLS = {1:"brown", 2:"red", 0.5:"green", 0.25:"blue", 0.1:"purple", 0.05:"gray", 5:"gold", 10:"silver"}
-LC_TOLS = {20:"black", 1:"brown", 2:"red", 3:"orange", 4:"yellow", 5:"gold", 10:"silver"}	# Inductor and Capacitor tolerance colors
+COLORS = [BLACK, BROWN, RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, GRAY, WHITE]
+MULTIPLIERS = {1:BLACK, 10:BROWN, 100:RED, 1000:ORANGE, 10000:YELLOW, 100000:GREEN, 
+			   1000000:BLUE, 10000000:PURPLE, 100000000:GRAY, 1000000000:WHITE, 
+			   0.1:GOLD, 0.01:SILVER}
+RESISTOR_TOLS = {1:BROWN, 2:RED, 0.5:GREEN, 0.25:BLUE, 0.1:PURPLE, 0.05:GRAY, 
+				 5:GOLD, 10:SILVER}
+LC_TOLS = {20:BLACK, 1:BROWN, 2:RED, 3:ORANGE, 4:YELLOW, 5:GOLD, 10:SILVER}	# Inductor and Capacitor tolerance colors
+VOLTAGE_COLORS = {0:BLACK, 100:BROWN, 200:RED, 300:ORANGE, 400:YELLOW, 500:GREEN, # Voltages checked against: http://www.pmel.org/Handbook/HBpage26.htm
+			   600:BLUE, 700:PURPLE, 800:GRAY, 900:WHITE, 1000:GOLD, 2000:SILVER}
+TEMPERATURE_COLORS = {70:BLACK, 85:RED, 125:YELLOW, 150:BLUE}	# MAXIMUM -- Temperatures checked against: https://en.wikipedia.org/wiki/Electronic_color_code#Capacitor_color-coding
 
 ## Supported components
 RESISTOR_STR = "resistor"
@@ -34,7 +60,6 @@ class Component:
 	def __init__(self, dataObj, **kwargs):
 		self.dataObj = dataObj
 		self.kwargs = kwargs
-		self.tolerance = helpers.kwargExists("tolerance", kwargs)
 		self.bandCount = helpers.kwargExists("bandCount", kwargs)
 		self.condense = helpers.setBoolKwarg("condense", kwargs, CONDENSE_VALUE)
 		self.showColorCodes = helpers.setBoolKwarg("showColorCodes", kwargs, SHOW_COLOR_CODES)
@@ -45,7 +70,8 @@ class Component:
 		## With all other data set, try to guess which component it is.
 		self.component = helpers.kwargExists("component", kwargs) or self.guessComponent()
 
-		## With the component set, either apply the user's units or pick them based off of the component.
+		## With the component set, set the tolerance and then apply the user's units or pick them based off of the component.
+		self.tolerance = helpers.kwargExists("tolerance", kwargs)
 		self.unitName = helpers.kwargExists("unitName", kwargs) or self.setUnits()
 
 		self._labels = []
@@ -90,7 +116,10 @@ class Component:
 	@helpers.isPositive
 	def tolerance(self, value):
 		if(value is not None):
-			validTolerances = [key for key in RESISTOR_TOLS]
+			if(self.component == INDUCTOR_STR or self.component == CAPACITOR_STR):
+				validTolerances = [key for key in LC_TOLS]
+			else:
+				validTolerances = [key for key in RESISTOR_TOLS]
 			self._tolerance = helpers.testForRange(value, validTolerances, "tolerance")
 		else:
 			self._tolerance = TOLERANCE
@@ -141,10 +170,7 @@ class Component:
 	@helpers.isPositive
 	def voltage(self, value):
 		if(value is not None):
-			## Voltages checked against: http://www.pmel.org/Handbook/HBpage26.htm
-			voltages = [v for v in helpers.incRange(100, 1000, 100)]
-			voltages.append(2000)
-			self._voltage = helpers.testForRange(value, voltages, "voltage")
+			self._voltage = helpers.testForRange(value, [key for key in VOLTAGE_COLORS], "voltage")
 		else:
 			self._voltage = VOLTAGE
 
@@ -157,9 +183,7 @@ class Component:
 	@helpers.isPositive
 	def temperature(self, value):
 		if(value is not None):
-			## Temperatures checked against: https://en.wikipedia.org/wiki/Electronic_color_code#Capacitor_color-coding
-			temperatures = [70, 85, 125, 150]
-			self._temperature = helpers.testForRange(value, temperatures, "temperature")
+			self._temperature = helpers.testForRange(value, [key for key in TEMPERATURE_COLORS], "temperature")
 		else:
 			self._temperature = TEMPERATURE
 
@@ -180,6 +204,7 @@ class Component:
 	def component(self, value):
 		if(value in COMPONENTS):
 			self._component = value
+		## Default to resistor
 		else:
 			self._component = RESISTOR_STR
 
@@ -297,22 +322,22 @@ class Component:
 		## Ppopulate the first 3 indecies with the appropriate colors
 		bands = []
 		for digit in str(leadingDigits):
-			bands.append(COLORS[int(digit)])
+			bands.append(RGB_COLORS[COLORS[int(digit)]])
 
 		## Populate the multiplier band with its color
 		multiplierIndex = round(float(value) / leadingDigits, 2)
 
 		try:
-			bands.append(MULTIPLIERS[multiplierIndex])
+			bands.append(RGB_COLORS[MULTIPLIERS[multiplierIndex]])
 		except KeyError as ke:
 			print("KeyError", ke, "Ignoring bands for this label.")
 			return None
 
 		if(self.showTolerance):
 			if(self.component == CAPACITOR_STR or self.component == INDUCTOR_STR):
-				tolerance = LC_TOLS[float(self.tolerance)]
+				tolerance = RGB_COLORS[LC_TOLS[float(self.tolerance)]]
 			else:
-				tolerance = RESISTOR_TOLS[float(self.tolerance)]
+				tolerance = RGB_COLORS[RESISTOR_TOLS[float(self.tolerance)]]
 			bands.append(tolerance)
 
 		return bands
@@ -323,16 +348,16 @@ class Component:
 		if(self.component == CAPACITOR_STR):
 			## Check to make sure that the user specified their own values, and don't just append the defaults in.
 			if(helpers.kwargExists("voltage", self.kwargs)):
-				optionBands.append(self.voltage)
+				optionBands.append(RGB_COLORS[VOLTAGE_COLORS[self.voltage]])
 			if(helpers.kwargExists("temperature", self.kwargs)):
-				optionBands.append(self.temperature)
+				optionBands.append(RGB_COLORS[TEMPERATURE_COLORS[self.temperature]])
+
 		return optionBands
 
 
 	def buildLabelColorCode(self, value, leadingDigits):
 		bands = self.buildBaseColorCode(value, leadingDigits)
-		if(bands):
-			bands.extend(self.buildOptionsColorCode())
+		bands.extend(self.buildOptionsColorCode())
 
 		return bands
 

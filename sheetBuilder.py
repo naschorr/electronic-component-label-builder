@@ -16,6 +16,10 @@ SCALE = 500
 DEBUG = False
 SHOW = True
 DRY_RUN = False
+SAVE_PREFIX = "eclb_"
+SAVE_SUFFIX = ""
+TEXT_COLOR = (0, 0, 0)		## RGB Black
+OUTLINE_COLOR = (0, 0, 0)	## RGB Black
 
 class SheetBuilder:
 	def __init__(self, sheetConfig, labels, **kwargs):
@@ -197,7 +201,11 @@ class SheetBuilder:
 		topLeftY = centerY - self.boxSize/2
 		## Draw the boxes with 
 		for box, color in enumerate(colorCode):
-			draw.rectangle([topLeftX + box*(self.boxSize+self.boxSpacerWidth), topLeftY, topLeftX + box*(self.boxSize+self.boxSpacerWidth) + self.boxSize, topLeftY + self.boxSize], color, 'black')
+			boxTopLeftX = topLeftX + box*(self.boxSize+self.boxSpacerWidth)
+			boxTopLeftY = topLeftY
+			boxBotRightX = topLeftX + box*(self.boxSize+self.boxSpacerWidth) + self.boxSize
+			boxBotRightY = topLeftY + self.boxSize
+			draw.rectangle([boxTopLeftX, boxTopLeftY, boxBotRightX, boxBotRightY], color, OUTLINE_COLOR)
 
 
 	def drawDebug(self, image, draw):
@@ -251,11 +259,11 @@ class SheetBuilder:
 						if(self.labels[0].colorCode is None):
 							textYOffset += sc.labelHeight/4
 							## Just draw the label's text, but centered
-							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
+							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill=TEXT_COLOR)
 						else:
 							colorCodeYOffset = topLeftY + 3*((sc.labelHeight)/4) + self.labelColorCodeOffset
 							## Draw the label's text and color code
-							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill="black")
+							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill=TEXT_COLOR)
 							self.drawColorCode(draw, self.labels[0].colorCode, labelXCenter, colorCodeYOffset)
 
 						## Delete the just recently drawn label from the array
@@ -280,7 +288,7 @@ class SheetBuilder:
 
 	def saveSheets(self, sheets):
 		for counter, image in enumerate(sheets):
-			image.save("eclb_" + str(counter) + self.outputType)
+			image.save(SAVE_PREFIX + str(counter) + SAVE_SUFFIX + self.outputType)
 
 
 	def drawSheet(self):
