@@ -20,7 +20,7 @@ import sheetBuilder
 @click.option('--units', '-u', help='The units of the component to be labeled (Ohm, Ω, Farad, etc).')		# componentBuilder
 @click.option('--tolerance', '-t', type=float, help='The tolerance of the component to be labeled (in percentage).')
 @click.option('--bands', '-b', type=int, help='The number of bands to use for displaying the significant digits of the component value.')
-@click.option('--condense/--no-condense', default=True, help='Choose whether or not to condense the component value down (ex. 10000 -> 1k).')
+@click.option('--condense/--no-condense', default=True, help='Choose whether or not to condense the component value down (ex. 1000 -> 1k).')
 @click.option('--color-codes/--no-color-codes', default=True, help='Choose to show the color code or not.')
 @click.option('--show-tolerance/--no-tolerance', default=True, help='Choose to show a tolerance band in the color code.')
 @click.option('--voltage', type=int, help='The voltage rating for the capacitors.')
