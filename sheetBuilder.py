@@ -10,8 +10,8 @@ FONT_SIZE = 100
 BOX_SIZE = 0.15
 BOX_SPACER_WIDTH = 0.05
 LABELS_PER_STICKER = 2
-LABEL_TEXT_OFFSET = 0.05
-LABEL_COLORCODE_OFFSET = -0.05
+LABEL_TEXT_OFFSET = 25
+LABEL_COLORCODE_OFFSET = -25
 SCALE = 500
 DEBUG = False
 SHOW = True
@@ -143,7 +143,7 @@ class SheetBuilder:
 	@helpers.isFloat
 	@helpers.isNotNegative
 	def labelTextOffset(self, value):
-		self._labelTextOffset = (value or LABEL_TEXT_OFFSET) * self.scale
+		self._labelTextOffset = value or LABEL_TEXT_OFFSET
 	
 	@property
 	def labelColorCodeOffset(self):
@@ -153,7 +153,7 @@ class SheetBuilder:
 	@helpers.isFloat
 	@helpers.isNotNegative
 	def labelColorCodeOffset(self, value):
-		self._labelColorCodeOffset = (value or LABEL_COLORCODE_OFFSET) * self.scale
+		self._labelColorCodeOffset = value or LABEL_COLORCODE_OFFSET
 
 	@property
 	def debug(self):
@@ -249,6 +249,7 @@ class SheetBuilder:
 					while(labelCounter < self.labelsPerSticker and len(self.labels) > 0):
 						## Determine the label's text and color code positions
 						labelText = self.labels[0].text
+						## Get the text string's dimensions (Note: Text height isn't accurate. I'd recommend supplementing with negative labelTextOffset)
 						textWidth, textHeight = ttf.getsize(labelText)
 						
 						labelXPositionSection = (sc.labelWidth)/(self.labelsPerSticker*2)
@@ -257,7 +258,7 @@ class SheetBuilder:
 						textYOffset = topLeftY + sc.labelHeight/4 - textHeight/2 + self.labelTextOffset
 
 						if(self.labels[0].colorCode is None):
-							textYOffset += sc.labelHeight/4
+							textYOffset += sc.labelHeight/4 - self.labelTextOffset
 							## Just draw the label's text, but centered
 							draw.text((labelXCenter - textWidth/2, textYOffset), labelText, font=ttf, fill=TEXT_COLOR)
 						else:
