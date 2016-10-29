@@ -49,11 +49,11 @@ class Data:
 			prefixValue = METRIC_PREFIX_VALUES[tokens.group(2)]
 		except AttributeError as ae:
 			alert = "Invalid value for the input '{0}'. Input should be of the form <number> <metric prefix> where the number is a float or integer. Quitting now."
-			print(alert.format(value))
+			helpers.eclbPrint(alert.format(value))
 			return None
 		except KeyError as ke:
 			alert = "Invalid metric prefix for the input '{0}'. Input should be of the form <number> <metric prefix> where the prefix is in the list {1}. Quitting now."
-			print(alert.format(value, [prefix for prefix in METRIC_PREFIX_VALUES]))
+			helpers.eclbPrint(alert.format(value, [prefix for prefix in METRIC_PREFIX_VALUES]))
 			return None
 
 		return float(componentValue * prefixValue)

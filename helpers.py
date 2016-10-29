@@ -1,3 +1,25 @@
+def isTest():
+	import inspect
+	import unittest
+
+	frames = inspect.getouterframes(inspect.currentframe())
+
+	unittestFound = False
+	frameIndex = 0
+	while(not unittestFound and frameIndex < len(frames)):
+		## Lazy, but it works
+		if(unittest.__name__ in frames[frameIndex][1]):
+			unittestFound = True
+		frameIndex += 1
+	
+	return unittestFound
+
+
+def eclbPrint(*args):
+	if(not isTest()):
+		print(*args)
+
+
 def kwargExists(kwarg, kwargs):
 			if kwarg in kwargs:
 				if(kwargs[kwarg] is not None):
@@ -15,6 +37,7 @@ def setBoolKwarg(kwargString, kwargs, defaultValue):
 
 def strip(string):
 	return string.rstrip().lstrip()
+
 
 ## Inclusive range
 def incRange(first, *args):
@@ -58,7 +81,7 @@ def testForRange(value, valueList, valueName='value'):
 			outputString += " is greater than " + str(thisIndex) + ". Defaulting to " + str(thisIndex) + "."
 			outputValue = thisIndex
 
-		print(outputString)
+		eclbPrint(outputString)
 		return outputValue
 
 

@@ -330,7 +330,7 @@ class Component:
 		try:
 			bands.append(RGB_COLORS[MULTIPLIERS[multiplierIndex]])
 		except KeyError as ke:
-			print("KeyError", ke, "Ignoring bands for this label.")
+			helpers.eclbPrint("KeyError", ke, "Ignoring bands for this label.")
 			return None
 
 		if(self.showTolerance):
