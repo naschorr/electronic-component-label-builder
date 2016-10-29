@@ -66,10 +66,10 @@ Display labels for an inductor with two significant digits in the color code
 `--label-width` - The width of an individual sticker (inches).  
 `--rows` - The number of rows on the sticker sheet.  
 `--columns` - The number of columns on the sticker sheet.  
-`--units`, `-u` - The units of the component to be labeled (Ohm, Î©, Farad, etc).  
+`--units`, `-u` - The units of the component to be labeled (Ohm, Ω, Farad, etc).  
 `--tolerance`, `-t` - The tolerance of the component to be labeled (in percentage).  
 `--bands`, `-b` - The number of bands to use for displaying the significant digits of the component value.  
-`--condense/--no-condense` - Choose whether or not to condense the component value down (ex. 10000 -> 1k).  
+`--condense/--no-condense` - Choose whether or not to condense the component value down (ex. 1000 -> 1k).  
 `--color-codes/--no-color-codes` - Choose to show the color code or not.  
 `--show-tolerance/--no-tolerance` - Choose to show a tolerance band in the color code.  
 `--voltage` - The voltage rating for the capacitors.  
