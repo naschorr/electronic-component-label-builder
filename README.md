@@ -37,7 +37,7 @@ Place three labels on each sticker
 --
 Make the text's font size bigger
 ![big font example](https://github.com/naschorr/electronic-component-label-builder/blob/master/resources/big_font_example.png?raw=true)
-`python eclb.py --font-size 125 PATH_TO_COMPONENT_DATA` or
+`python eclb.py --font-size 125 PATH_TO_COMPONENT_DATA` or  
 `python eclb.py -f 125 PATH_TO_COMPONENT_DATA`
 
 --
@@ -56,7 +56,8 @@ Change the color code so that it works for resistors with four bands (or, two si
 Assign a temperature value to the component data, and then display each one with two significant digits in the color code (assumes that the component is a capacitor, since temperature is specified)
 ![capacitor temperature example](https://github.com/naschorr/electronic-component-label-builder/blob/master/resources/capacitor_temperature_example.png?raw=true)
 `python eclb.py --bands 2 --temperature 150 PATH_TO_COMPONENT_DATA` or  
-`python eclb.py -b 2 --temperature 150 PATH_TO_COMPONENT_DATA` or, if you manually specify the component  
+`python eclb.py -b 2 --temperature 150 PATH_TO_COMPONENT_DATA`  
+or, if you want to manually specify the component:  
 `python eclb.py --component capacitor --bands 2 --temperature 150 PATH_TO_COMPONENT_DATA` or  
 `python eclb.py -c capacitor -b 2 --temperature 150`
 
