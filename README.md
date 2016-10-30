@@ -68,33 +68,33 @@ Display labels for an inductor with two significant digits in the color code
 `python eclb.py -b 2 -c inductor PATH_TO_COMPONENT_DATA`
 
 ### Commands
-`--sheet-height` - The height of the label sheet (inches).  
-`--sheet-width` - The width of the label sheet (inches).  
-`--upper-margin` - The vertical size of the top-most margin (inches).  
-`--left-margin` - The horizontal size of the left-most margin (inches).  
-`--middle-padding` - The size of the padding between columns of sticker, if any (inches).  
-`--label-height` - The height of an individual sticker (inches).  
-`--label-width` - The width of an individual sticker (inches).  
-`--rows` - The number of rows on the sticker sheet.  
-`--columns` - The number of columns on the sticker sheet.  
+`--sheet-height` - FLOAT - The height of the label sheet (inches).  
+`--sheet-width` - FLOAT - The width of the label sheet (inches).  
+`--upper-margin` - FLOAT - The vertical size of the top-most margin (inches).  
+`--left-margin` - FLOAT - The horizontal size of the left-most margin (inches).  
+`--middle-padding` - FLOAT - The size of the padding between columns of sticker, if any (inches).  
+`--label-height` - FLOAT - The height of an individual sticker (inches).  
+`--label-width` - FLOAT - The width of an individual sticker (inches).  
+`--rows` - INT - The number of rows on the sticker sheet.  
+`--columns` - INT - The number of columns on the sticker sheet.  
 `--units`, `-u` - The units of the component to be labeled (Ohm, Ω, Farad, etc).  
-`--tolerance`, `-t` - The tolerance of the component to be labeled (in percentage).  
-`--bands`, `-b` - The number of bands to use for displaying the significant digits of the component value.  
-`--condense/--no-condense` - Choose whether or not to condense the component value down (ex. 1000 -> 1k).  
-`--color-codes/--no-color-codes` - Choose to show the color code or not.  
-`--show-tolerance/--no-tolerance` - Choose to show a tolerance band in the color code.  
-`--voltage` - The voltage rating for the capacitors.  
-`--temperature` - The temperature coefficient of the capacitors.  
+`--tolerance`, `-t` - FLOAT - The tolerance of the component to be labeled (in percentage).  
+`--bands`, `-b` - INT - The number of bands to use for displaying the significant digits of the component value.  
+`--condense/--no-condense` - Choose whether or not to condense the component value down (ex. 1000 -> 1k). Defaults to `True`.  
+`--color-codes/--no-color-codes` - Choose to show the color code or not. Defaults to `True`.  
+`--show-tolerance/--no-tolerance` - Choose to show a tolerance band in the color code. Defaults to `True`.  
+`--voltage` - INT - The voltage rating for the capacitors.  
+`--temperature` - INT - The temperature coefficient of the capacitors.  
 `--component`, `-c` - Overrides any other options, and tries to make components of that type.  
-`--scale`, `-s` - The scale for rendering the sticker sheet. Bigger scale means higher resolution. Might have to play around with this to get the units to work.  
+`--scale`, `-s` - INT - The scale for rendering the sticker sheet. Bigger scale means higher resolution. Might have to play around with this to get the units to work.  
 `--output-format`, `-o` - Image type to save the sticker sheet as.  
 `--font` - Path to the font to use in label text.  
-`--font-size`, `-f` - The size of the font used on the labels (as a percentage, ex. 100 is default).  
-`--box-size` - The size of the boxes that hold color bands (inches).  
-`--box-spacer-width` - The size of the spacer between the color band boxes (inches).  
-`--labels-per-sticker`, `-l` - The number of labels to place in each sticker.  
-`--label-text-offset` - The veritcal distance to offset label text (pixels) (Positive values offset it down, and negatives offset it up.)  
-`--label-colorcode-offset` - The vertical distance to offset label color codes (pixels) (Positive values offset it down, and negatives offset it up.)  
-`--debug/--no-debug` - Choose to render debug gridlines on the sticker sheet (Helps with alignment).  
-`--show/--no-show` - Choose to show a preview of the resulting image.  
-`--dry-run/--no-dry-run` - Choose to save the resulting images or not.  
+`--font-size`, `-f` - INT - The size of the font used on the labels (as a percentage, ex. 100 is default).  
+`--box-size` - FLOAT - The size of the boxes that hold color bands (inches).  
+`--box-spacer-width` - FLOAT - The size of the spacer between the color band boxes (inches).  
+`--labels-per-sticker`, `-l` - INT - The number of labels to place in each sticker.  
+`--label-text-offset` - FLOAT - The veritcal distance to offset label text (pixels) (Positive values offset it down, and negatives offset it up.)  
+`--label-colorcode-offset` - FLOAT - The vertical distance to offset label color codes (pixels) (Positive values offset it down, and negatives offset it up.)  
+`--debug/--no-debug` - Choose to render debug gridlines on the sticker sheet (Helps with alignment). Defaults to `False`.  
+`--show/--no-show` - Choose to show a preview of the resulting image. Defaults to `True`.  
+`--dry-run/--no-dry-run` - Choose to save the resulting images or not. Defaults to `False`.
